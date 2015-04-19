@@ -188,7 +188,6 @@ class MachineManager(AbstractMachineManager):
 
         ret = []
         for container in machines:
-            container = self.__dc.inspect_container(container['Id'])
             ret.append(self._format_machine(container))
 
         return ret
@@ -196,6 +195,18 @@ class MachineManager(AbstractMachineManager):
     @catch_exception
     def search(self, generic_filters, meta_filters):
         """Return running containers based on the provided filters.
+
+            :param generic_filters: search filter passed to docker-py
+            :param meta_filters: filters applied to container.items()
+
+            meta_filters can use any of
+            {u'Status': u'Exited (0) 2 days ago',
+            u'Created': 1429221117,
+            u'Image': u'composetest_test:latest',
+            u'Ports': [],
+            u'Command': u'/bin/true',
+            u'Names': [u'/commandscomposefile_explicit_run_1'],
+            u'Id': u'3a2ab911cd96d3908fa797ad7b3c20c5d076e9227d77035c617e71cb9ef8ee06'},
         """
         _LOGGER.warn(
             "Searching for machines using generic filters (%s) and "
@@ -203,22 +214,23 @@ class MachineManager(AbstractMachineManager):
         )
        
         match = []
-        for machine in self.__dc.containers(all=True): #**generic_filters):
+        for container in self.__dc.containers(**generic_filters):
             checked = []
             checked_keys = set()
-            keys = set([key for key in meta_filters.iterkeys()])
-            for key, values in machine.items():
+            # why not set(meta_filters)?
+            keys = set(meta_filters)
+            for key, values in container.items():
                 if key in meta_filters.values():
                     checked.append(meta_filters[key] in values)
                     checked_keys.add(key)
             if keys == checked_keys and all(checked):
-                match.append(machine)
+                match.append(container)
 
         _LOGGER.debug("Found machines (%s).", match)
 
         ret = []
-        for machine in match:
-            ret.append(self._format_machine(machine))
+        for container in match:
+            ret.append(self._format_machine(container))
         return ret
 
     #@catch_exception
@@ -252,14 +264,20 @@ class MachineManager(AbstractMachineManager):
         """Return infos about a given container.
         """
         ret = self.__dc.containers(filters={"name": "/machine-" + machine_uuid})
-        assert len(ret) == 1
-        return ret[0]
+        if len(ret) == 1:
+            return ret[0]
+        elif len(ret) == 0:
+            raise  ValueError("No machine with the given uuid")
+        else:
+            raise ValueError("More than one matches for uuid")
 
-    def _format_machine(self, machine):
+    def _format_machine(self, container):
         """Format machine data.
 
         :param machine: Reference to a machine.
         """
+
+        machine = self.__dc.inspect_container(container['Id'])
         addresses = json.dumps(machine['NetworkSettings']['IPAddress'])
 
         av_host = "-"

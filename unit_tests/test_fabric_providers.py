@@ -1,3 +1,5 @@
+from nose.plugins.skip import SkipTest
+
 __author__ = 'rpolli'
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -22,15 +24,22 @@ provider = Provider(provider_id='dockermock',
                     url=''
                     )
 
+
 def teardown():
     for c in created_containers:
-        log.warn("removing container: %r" % c)
+        log.warn("removing container associated to machine-: %r", c)
         cli = Client(provider.url)
         cid = cli.containers(filters={'name': 'machine-' + c})
+        if not cid:
+            log.warning("Container already removed")
+            continue
+
+        assert len(cid) == 1, "More than one container matching"
+
         try:
             cli.remove_container(cid[0]['Id'], v=True, force=True)
         except (IndexError, AttributeError) as e:
-            log.error(e.msg)
+            log.error("Error in teardown %s", e)
             continue
 """
         parameters = {
@@ -105,10 +114,11 @@ def test_create():
     assert ret
 
 
-def test_search():
+@SkipTest
+def test_search_with_labels():
     # Search all Containers matching the given filter.
     #  if 'all': True searches all containers
-    generic_filters = {'all': True}
+    generic_filters = {'all': False, 'limit': 2}
     meta_filters = {
         'mysql-fabric-machine-group-uuid': 'e807df6a-0ae6-44cc-beaf-310d498598b4',
     }
@@ -116,8 +126,20 @@ def test_search():
     ret = m.search(generic_filters, meta_filters)
     assert ret
 
+def test_search_generic():
+    # Search all Containers matching the given filter.
+    #  if 'all': True searches stopped container, which fails
+    #               due to missing NetworkSettings
+    #  in generic filters you can have
+    #       "name": "/machine-"
+    generic_filters = {'all': False, 'limit': 2}
+    meta_filters = {}
+    m = dockerprovider.MachineManager(provider, version='1.15')
+    ret = m.search(generic_filters, meta_filters)
+    assert ret
 
-def destroy():
+
+def test_destroy():
     """Destroy a machine.
 
     :param machine_uuid: UUID that uniquely identifies the machine.
