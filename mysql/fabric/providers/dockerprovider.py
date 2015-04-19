@@ -195,7 +195,7 @@ class MachineManager(AbstractMachineManager):
 
     @catch_exception
     def search(self, generic_filters, meta_filters):
-        """Return machines based on the provided filters.
+        """Return running containers based on the provided filters.
         """
         _LOGGER.warn(
             "Searching for machines using generic filters (%s) and "
@@ -203,7 +203,7 @@ class MachineManager(AbstractMachineManager):
         )
        
         match = []
-        for machine in self.__dc.containers(): #**generic_filters):
+        for machine in self.__dc.containers(all=True): #**generic_filters):
             checked = []
             checked_keys = set()
             keys = set([key for key in meta_filters.iterkeys()])

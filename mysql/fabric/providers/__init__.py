@@ -273,6 +273,7 @@ class AbstractDatabaseManager(AbstractManager): # pylint: disable=R0921
 def catch_exception(function):
     """Catch exception and throw an MachineError.
     """
+    from six import reraise
     @functools.wraps(function)
     def wrapper_catch_exception(*args, **kwargs):
         """Wrapper to catch OpenStack exceptions.
@@ -281,7 +282,7 @@ def catch_exception(function):
             return function(*args, **kwargs)
         except Exception as error:
             _LOGGER.error(
-                "Error processing a database operation.", exc_info=error
+                "Error processing a database operation.", exc_info=True
             )
-            raise MachineError(error)
+            reraise(MachineError, MachineError(error), error)
     return wrapper_catch_exception

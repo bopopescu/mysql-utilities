@@ -26,7 +26,12 @@ def teardown():
     for c in created_containers:
         log.warn("removing container: %r" % c)
         cli = Client(provider.url)
-        cli.remove_container(c, v=True, force=True)
+        cid = cli.containers(filters={'name': 'machine-' + c})
+        try:
+            cli.remove_container(cid[0]['Id'], v=True, force=True)
+        except (IndexError, AttributeError) as e:
+            log.error(e.msg)
+            continue
 """
         parameters = {
             'image' : image,
@@ -101,10 +106,11 @@ def test_create():
 
 
 def test_search():
-    generic_filters = {}
+    # Search all Containers matching the given filter.
+    #  if 'all': True searches all containers
+    generic_filters = {'all': True}
     meta_filters = {
         'mysql-fabric-machine-group-uuid': 'e807df6a-0ae6-44cc-beaf-310d498598b4',
-
     }
     m = dockerprovider.MachineManager(provider, version='1.15')
     ret = m.search(generic_filters, meta_filters)
