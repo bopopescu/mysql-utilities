@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqlprocgrep\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLPROCGREP\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLPROCGREP\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -70,7 +70,11 @@ and
 \fBSUPER\fR
 privileges\&. Without
 \fBPROCESS\fR, the account cannot see processes belonging to other accounts Without
-\fBSUPER\fR, the account cannot kill processes belonging to other accounts
+\fBSUPER\fR, the account cannot kill processes belonging to other accounts\&.
+.PP
+When the
+\fB\-\-kill\-query\fR
+option is used, the utility will display those rows from the SHOW PROCESSLIST that match the query and are killed\&. This behavior exists as of MySQL Utilities 1\&.6\&.0\&.
 .PP
 To specify how to display output, use one of the following values with the
 \fB\-\-format\fR
@@ -89,7 +93,7 @@ option:
 .sp
 Display output in grid or table format like that of the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .sp
 .RS 4
@@ -132,10 +136,9 @@ Display output in single\-column format like that of the
 \eG
 command for the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
-      Options
-.PP
+Options.PP
 \fBmysqlprocgrep\fR
 accepts the following command\-line options:
 .sp
@@ -150,6 +153,19 @@ accepts the following command\-line options:
 \-\-help
 .sp
 Display a help message and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-license
+.sp
+Display license information and exit\&.
 .RE
 .sp
 .RS 4
@@ -178,7 +194,7 @@ The permitted suffixes are
 \fBw\fR
 (week)\&. For example,
 \fB4h15m\fR
-mean 4 hours and 15 minutes\&.
+represents 4 hours and 15 minutes\&.
 .sp
 For both formats, the specification can optionally be preceded by
 +
@@ -198,14 +214,28 @@ means younger than the given time\&.
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-character\-set=<charset>
+.sp
+Sets the client character set\&. The default is retrieved from the server variable
+character_set_client\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-format=<format>, \-f<format>
 .sp
 Specify the output display format\&. Permitted format values are
-\fBgrid\fR,
+\fBgrid\fR
+(default),
 \fBcsv\fR,
 \fBtab\fR, and
-\fBvertical\fR\&. The default is
-\fBgrid\fR\&.
+\fBvertical\fR\&.
 .RE
 .sp
 .RS 4
@@ -219,7 +249,7 @@ Specify the output display format\&. Permitted format values are
 \-\-kill\-connection
 .sp
 Kill the connection for all matching processes (like the
-\fBKILL CONNECTION\fR
+KILL CONNECTION
 statement)\&.
 .RE
 .sp
@@ -234,7 +264,7 @@ statement)\&.
 \-\-kill\-query
 .sp
 Kill the query for all matching processes (like the
-\fBKILL QUERY\fR
+KILL QUERY
 statement)\&.
 .RE
 .sp
@@ -280,6 +310,21 @@ field matches the pattern\&.
 .sp
 Match all processes where the
 \fBHost\fR
+field matches the pattern\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-match\-id=<pattern>
+.sp
+Match all processes where the
+\fBID\fR
 field matches the pattern\&.
 .RE
 .sp
@@ -376,7 +421,45 @@ options\&.
 .\}
 \-\-server=<source>
 .sp
-Connection information for a server to search in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&. Use this option multiple times to search multiple servers\&.
+Connection information for a server\&. Use this option multiple times to search multiple servers\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -424,8 +507,8 @@ www\-data:
 .RS 4
 .\}
 .nf
-$ mysqlprocgrep \-\-kill\-connection \-\-sql\-body \e
->   \-\-match\-user=www\-data \-\-match\-state=sleep
+shell> \fBmysqlprocgrep \-\-kill\-connection \-\-sql\-body \e\fR
+          \fB\-\-match\-user=www\-data \-\-match\-state=sleep\fR
 DECLARE kill_done INT;
 DECLARE kill_cursor CURSOR FOR
   SELECT
@@ -460,6 +543,58 @@ CLOSE kill_cursor;
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-ssl\-ca
+.sp
+The path to a file that contains a list of trusted SSL CAs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-verbose, \-v
 .sp
 Specify how much information to display\&. Use this option multiple times to increase the amount of information\&. For example,
@@ -483,33 +618,37 @@ Specify how much information to display\&. Use this option multiple times to inc
 .sp
 Display version information and exit\&.
 .RE
-      NOTES
-.PP
+NOTES.PP
 For the
 \fB\-\-format\fR
 option, the permitted values are not case sensitive\&. In addition, values may be specified as any unambiguous prefix of a valid value\&. For example,
 \fB\-\-format=g\fR
 specifies the grid format\&. An error occurs if a prefix matches more than one valid value\&.
 .PP
-The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
-      EXAMPLES
-.PP
+The path to the MySQL client tools should be included in the
+PATH
+environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the
+\fBmy_print_defaults\fR
+tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
+EXAMPLES.PP
 For each example, assume that the
 root
 user on
 localhost
 has sufficient privileges to kill queries and connections\&.
 .PP
-Kill all queries created by user
-mats
-that are younger than 1 minute:
+Kill all connections created by user
+john:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-mysqlprocgrep \-\-server=root@localhost \e
-  \-\-match\-user=mats \-\-age=\-1m \-\-kill\-query
+shell> \fBmysqlprocgrep \-\-server=root@localhost \e\fR
+          \fB\-\-match\-user=john \-\-kill\-connection \-\-format=CSV\fR
+# The following KILL commands were executed:
+Id,User,Host,db,Command,Time,State,Info
+4,john,localhost:50706,mysql,Sleep,5,,
 .fi
 .if n \{\
 .RE
@@ -521,17 +660,29 @@ Kill all connections that have been idle for more than 1 hour:
 .RS 4
 .\}
 .nf
-mysqlprocgrep \-\-server=root@localhost \e
-  \-\-match\-command=sleep \-\-age=1h \-\-kill\-connection
+shell> \fBmysqlprocgrep \-\-server=root@localhost \e\fR
+          \fB\-\-match\-command=sleep \-\-age=1h \-\-kill\-connection\fR
 .fi
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The user must have the SELECT privilege on the mysql database\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

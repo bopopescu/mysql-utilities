@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqldbexport\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLDBEXPORT\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLDBEXPORT\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -103,7 +103,7 @@ option is specified)\&.
 .sp
 Display output in grid or table format like that of the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .sp
 .RS 4
@@ -146,7 +146,7 @@ Display output in single\-column format like that of the
 \eG
 command for the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .PP
 To specify how much data to display, use one of the following values with the
@@ -191,10 +191,24 @@ Display the complete column list for recreating the objects\&.
 .sp
 Display only the object names\&.
 .RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
 .PP
-Note: For SQL\-format output, the
+The
 \fB\-\-display\fR
-option is ignored\&.
+option is ignored when combined with the SQL\-format output type\&.
+.sp .5v
+.RE
 .PP
 To turn off the headers for
 \fBcsv\fR
@@ -247,7 +261,9 @@ option permits you to select from the following replication statements to includ
 .sp
 Include the
 \fBCHANGE MASTER\fR
-statement to start a new slave with the current server acting as the master\&. This places the appropriate STOP and START slave statements in the export whereby the
+statement to make the destination server a slave of the server specified in the
+\fB\-\-server\fR
+option\&. This places the appropriate STOP and START slave statements in the export whereby the
 \fBSTOP SLAVE\fR
 statement is placed at the start of the export and the
 \fBCHANGE MASTER\fR
@@ -268,7 +284,9 @@ statements are placed after the export stream\&.
 .sp
 Include the
 \fBCHANGE MASTER\fR
-statement to start a new slave using the current server\*(Aqs master information\&. This places the appropriate STOP and START slave statements in the export whereby the
+statement to make the destination server a slave connected to the same master as the server specified in the
+\fB\-\-server\fR
+option\&. It only works if the current server is a slave\&. This places the appropriate STOP and START slave statements in the export whereby the
 \fBSTOP SLAVE\fR
 statement is placed at the start of the export and the
 \fBCHANGE MASTER\fR
@@ -319,8 +337,7 @@ To make the most use of GTIDs and export/import, you should export all of the da
 option\&. This will generate an export file with all of the databases and the GTIDs executed to that point\&.
 .PP
 Importing this file on another server will ensure that server has all of the data as well as all of the GTIDs recorded correctly in its logs\&.
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqldbexport\fR
 accepts the following command\-line options:
 .sp
@@ -345,9 +362,36 @@ Display a help message and exit\&.
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-license
+.sp
+Display license information and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-bulk\-insert, \-b
 .sp
 Use bulk insert statements for data\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-character\-set=<charset>
+.sp
+Sets the client character set\&. The default is retrieved from the server variable
+character_set_client\&.
 .RE
 .sp
 .RS 4
@@ -502,6 +546,19 @@ Choose the lock type for the operation\&. Permitted lock values are
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-multiprocess
+.sp
+Specify the number of processes to concurrently export the specified databases\&. Special values: 0 (number of processes equal to the number of detected CPUs) and 1 (default \- no concurrency)\&. Multiprocessing works at the database level for Windows and at the table level for Non\-Windows (POSIX) systems\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-no\-headers, \-h
 .sp
 Do not display column headers\&. This option applies only for
@@ -509,6 +566,19 @@ Do not display column headers\&. This option applies only for
 and
 \fBtab\fR
 output\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-output\-file
+.sp
+Specify the path and file name to store the generated export output\&. By default the standard output is used (no file)\&.
 .RE
 .sp
 .RS 4
@@ -549,17 +619,13 @@ for matching\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-\-\-rpl=<dump_option>, \-\-replication=<dump_option>
+\-\-rpl=<rpl_mode>, \-\-replication=<rpl_mode>
 .sp
 Include replication information\&. Permitted values are
 \fBmaster\fR
-(include the
-\fBCHANGE MASTER\fR
-statement using the source server as the master),
+(make destination a slave of the source server),
 \fBslave\fR
-(include the
-\fBCHANGE MASTER\fR
-statement using the destination server\*(Aqs master information), and
+(make destination a slave of the same master as the source \- only works if the source server is a slave), and
 \fBboth\fR
 (include the
 \fBmaster\fR
@@ -607,7 +673,97 @@ rpl:passwd\&. The default is None\&.
 .\}
 \-\-server=<server>
 .sp
-Connection information for the server in <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[::<\fIport\fR>][::<\fIsocket\fR>]\&.
+Connection information for the server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-ca
+.sp
+The path to a file that contains a list of trusted SSL CAs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
 .RE
 .sp
 .RS 4
@@ -704,8 +860,7 @@ Specify how much information to display\&. Use this option multiple times to inc
 .sp
 Display version information and exit\&.
 .RE
-      NOTES
-.PP
+NOTES.PP
 You must provide connection parameters (user, host, password, and so forth) for an account that has the appropriate privileges to access all objects in the operation\&.
 .PP
 To export all objects from a source database, the user must have these privileges:
@@ -730,13 +885,20 @@ options, the permitted values are not case sensitive\&. In addition, values may 
 \fB\-\-format=g\fR
 specifies the grid format\&. An error occurs if a prefix matches more than one valid value\&.
 .PP
-The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
+The path to the MySQL client tools should be included in the
+PATH
+environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the
+\fBmy_print_defaults\fR
+tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
 .PP
 If any database identifier specified as an argument contains special characters or is a reserved word, then it must be appropriately quoted with backticks (\fB`\fR)\&. In turn, names quoted with backticks must also be quoted with single or double quotes depending on the operating system, i\&.e\&. (\fB"\fR) in Windows or (\fB\*(Aq\fR) in non\-Windows systems, in order for the utilities to read backtick quoted identifiers as a single argument\&. For example, to export a database with the name
 \fBweird`db\&.name\fR, it must be specified as argument using the following syntax (in non\-Windows):
 \fB\*(Aq`weird``db\&.name`\*(Aq\fR\&.
-      EXAMPLES
 .PP
+Keep in mind that you can only take advantage of multiprocessing if your system has multiple CPUs available for concurrent execution\&. Also note that multiprocessing is applied at a different level according to the operating system where the
+\fBmysqldbexport\fR
+utility is executed (due to python limitations)\&. In particular, it is applied at the database level for Windows (i\&.e\&., different databases are concurrently exported) and at the table level for Non\-Windows (POSIX) systems (i\&.e\&., different tables within the same database are concurrently exported)\&.
+EXAMPLES.PP
 To export the definitions of the database
 dev
 from a MySQL server on the local host via port 3306, producing output consisting of
@@ -747,8 +909,8 @@ statements, use this command:
 .RS 4
 .\}
 .nf
-$ mysqldbexport \-\-server=root:pass@localhost \e
-  \-\-skip=GRANTS \-\-export=DEFINITIONS util_test
+shell> \fBmysqldbexport \-\-server=root:pass@localhost \e\fR
+  \fB\-\-skip=GRANTS \-\-export=DEFINITIONS util_test\fR
 # Source on localhost: \&.\&.\&. connected\&.
 # Exporting metadata from util_test
 DROP DATABASE IF EXISTS util_test;
@@ -790,8 +952,8 @@ util_test, producing bulk insert statements, use this command:
 .RS 4
 .\}
 .nf
-$ mysqldbexport \-\-server=root:pass@localhost \e
-  \-\-export=DATA \-\-bulk\-insert util_test
+shell> \fBmysqldbexport \-\-server=root:pass@localhost \e\fR
+          \fB\-\-export=DATA \-\-bulk\-insert util_test\fR
 # Source on localhost: \&.\&.\&. connected\&.
 USE util_test;
 # Exporting data from util_test
@@ -827,8 +989,8 @@ option to the command:
 .RS 4
 .\}
 .nf
-$ mysqldbexport \-\-server=root:pass@localhost \e
-  \-\-export=DATA \-\-bulk\-insert util_test \-\-locking=lock\-all
+shell> \fBmysqldbexport \-\-server=root:pass@localhost \e\fR
+  \fB\-\-export=DATA \-\-bulk\-insert util_test \-\-locking=lock\-all\fR
 # Source on localhost: \&.\&.\&. connected\&.
 USE util_test;
 # Exporting data from util_test
@@ -862,8 +1024,8 @@ To export a database and include the replication commands to use the current ser
 .RS 4
 .\}
 .nf
-$ mysqldbexport \-\-server=root@localhost:3311 util_test \e
-  \-\-export=both \-\-rpl\-user=rpl:rpl \-\-rpl=master \-v
+shell> \fBmysqldbexport \-\-server=root@localhost:3311 util_test \e\fR
+          \fB\-\-export=both \-\-rpl\-user=rpl:rpl \-\-rpl=master \-v\fR
 # Source on localhost: \&.\&.\&. connected\&.
 #
 # Stopping slave
@@ -914,8 +1076,8 @@ Similarly, to export a database and include the replication commands to use the 
 .RS 4
 .\}
 .nf
-$ mysqldbexport \-\-server=root@localhost:3311 util_test \e
-  \-\-export=both \-\-rpl\-user=rpl:rpl \-\-rpl=slave \-v
+shell> \fBmysqldbexport \-\-server=root@localhost:3311 util_test \e\fR
+          \fB\-\-export=both \-\-rpl\-user=rpl:rpl \-\-rpl=slave \-v\fR
 # Source on localhost: \&.\&.\&. connected\&.
 #
 # Stopping slave
@@ -959,11 +1121,23 @@ START SLAVE;
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The user must have permission to read all databases\&. Since we are using the root account for these examples (and you typically would), permissions are not generally a problem\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqlauditadmin\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLAUDITADMIN\F" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLAUDITADMIN\F" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -46,11 +46,11 @@ The available actions include the following:
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 1.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  1." 4.2
+.IP \(bu 2.3
 .\}
 \fBcopy\fR
 .sp
@@ -64,11 +64,11 @@ option can be used to copy log files from a remote location\&. Note: the destina
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 2.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  2." 4.2
+.IP \(bu 2.3
 .\}
 \fBpolicy\fR
 .sp
@@ -90,6 +90,8 @@ option\&.
 The
 \fB\-\-server\fR
 option is also required to execute this command\&.
+.sp
+Starting from MySQL server 5\&.6\&.20 and 5\&.7\&.5, the value is read only for the audit_log_policy variable\&. Now the policy results from the combination of two new variables: audit_log_connection_policy and audit_log_statement_policy\&. This change is supported starting from MySQL Utilities 1\&.5\&.2\&.
 .sp .5v
 .RE
 .sp
@@ -151,11 +153,11 @@ DEFAULT: sets the default log policy
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 3.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  3." 4.2
+.IP \(bu 2.3
 .\}
 \fBrotate_on_size\fR
 .sp
@@ -170,22 +172,21 @@ option to be specified\&. Note: if the variable is set with a value that is not 
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 4.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  4." 4.2
+.IP \(bu 2.3
 .\}
 \fBrotate\fR
 .sp
 This command is used to perform an on\-demand audit log rotation, and only requires the
 \fB\-\-server\fR
 option to be passed\&. Note: this command has no effect if the audit log file size is smaller than 4096, which is the minimum value allowed that is greater than 0 for the
-audit_log_rotate_on_size variable
+audit_log_rotate_on_size
 variable)\&.
 .RE
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqlauditadmin\fR
 accepts the following command\-line options:
 .sp
@@ -253,6 +254,19 @@ Display a help message and exit\&.
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-license
+.sp
+Display license information and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-remote\-login=<REMOTE_LOGIN>
 .sp
 User name and host to be used for the remote login, for copying log files\&. It is defined using the following format: <\fIuser\fR>:<\fIhost or IP\fR>\&. Usage will prompt for the password\&.
@@ -268,7 +282,45 @@ User name and host to be used for the remote login, for copying log files\&. It 
 .\}
 \-\-server=<SERVER>
 .sp
-Connection information for the server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+Connection information for the server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -292,12 +344,9 @@ Display the audit log system variables\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-\-\-value=<VALUE>
+\-\-ssl\-ca
 .sp
-Value used to set variables based on the specified commands, such as
-\fIpolicy\fR
-and
-\fIrotate_on_size\fR\&.
+The path to a file that contains a list of trusted SSL CAs\&.
 .RE
 .sp
 .RS 4
@@ -308,9 +357,51 @@ and
 .sp -1
 .IP \(bu 2.3
 .\}
-\-\-server1=<source>
+\-\-ssl\-cert
 .sp
-Connection information for the first server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-value=<VALUE>
+.sp
+Value used to set variables based on the specified commands, such as
+\fIpolicy\fR
+and
+\fIrotate_on_size\fR\&.
 .RE
 .sp
 .RS 4
@@ -344,10 +435,7 @@ Specify how much information to display\&. Use this option multiple times to inc
 .sp
 Display version information and exit\&.
 .RE
-      NOTES
-.PP
-This utility is available as of μ 1\&.2\&.0\&.
-.PP
+NOTES.PP
 This utility can only be applied to servers with the
 \m[blue]\fBaudit log plugin enabled\fR\m[]\&\s-2\u[2]\d\s+2\&. And the audit log plugin is available as of MySQL Server versions 5\&.5\&.28 and 5\&.6\&.10\&.
 .PP
@@ -359,8 +447,9 @@ environment variable in order to use the authentication mechanism with login\-pa
 my_print_defaults
 tools, which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&. This feature exists as of MySQL Server 5\&.6\&.6, see
 \m[blue]\fB\fBmysql_config_editor\fR \(em MySQL Configuration Utility\fR\m[]\&\s-2\u[3]\d\s+2\&.
-      LIMITATIONS
 .PP
+Changes to MySQL Enterprise Audit Log Plugin are not documented in this documentation, so your output might be different than the examples here\&. For example, a new (or removed) MySQL Enterprise Audit Log Plugin option might affect the output\&.
+LIMITATIONS.PP
 The
 \fB\-\-remote\-login\fR
 option is not supported on Microsoft Windows platforms\&. For Microsoft Windows, use
@@ -368,28 +457,35 @@ UNC
 paths and perform a local copy operation, omitting the
 \fB \-\-remote\-login\fR
 option\&.
-      EXAMPLES
-.PP
+EXAMPLES.PP
 To display the audit log system variables, run the following command:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-$ mysqlauditadmin \-\-show\-options \-\-server=root@localhost:3310
-  #
-  # Audit Log Variables and Options
-  #
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | Variable_name             | Value         |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | audit_log_buffer_size     | 1048576       |
-  | audit_log_file            | audit\&.log     |
-  | audit_log_flush           | OFF           |
-  | audit_log_policy          | ALL           |
-  | audit_log_rotate_on_size  | 0             |
-  | audit_log_strategy        | ASYNCHRONOUS  |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+shell> \fBmysqlauditadmin \-\-show\-options \-\-server=root@localhost:3310\fR
+#
+# Showing options after command\&.
+#
+# Audit Log Variables and Options
+#
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Variable_name                | Value         |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| audit_log_buffer_size        | 1048576       |
+| audit_log_connection_policy  | NONE          |
+| audit_log_current_session    | ON            |
+| audit_log_exclude_accounts   |               |
+| audit_log_file               | audit\&.log     |
+| audit_log_flush              | OFF           |
+| audit_log_format             | OLD           |
+| audit_log_include_accounts   |               |
+| audit_log_policy             | ALL           |
+| audit_log_rotate_on_size     | 0             |
+| audit_log_statement_policy   | ALL           |
+| audit_log_strategy           | ASYNCHRONOUS  |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
 .fi
 .if n \{\
 .RE
@@ -401,7 +497,7 @@ To perform a (manual) rotation of the audit log file, use the following command:
 .RS 4
 .\}
 .nf
-shell> mysqlauditadmin \-\-server=root@localhost:3310 rotate
+shell> \fBmysqlauditadmin \-\-server=root@localhost:3310 rotate\fR
 #
 # Executing ROTATE command\&.
 #
@@ -436,89 +532,115 @@ command, use the following command:
 .RS 4
 .\}
 .nf
-shell> mysqlauditadmin \-\-show\-options \-\-server=root@localhost:3310 policy \e 
-    \-\-value=QUERIES
-  #
-  # Showing options before command\&.
-  #
-  # Audit Log Variables and Options
-  #
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | Variable_name             | Value         |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | audit_log_buffer_size     | 1048576       |
-  | audit_log_file            | audit\&.log     |
-  | audit_log_flush           | OFF           |
-  | audit_log_policy          | ALL           |
-  | audit_log_rotate_on_size  | 0             |
-  | audit_log_strategy        | ASYNCHRONOUS  |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  #
-  # Executing POLICY command\&.
-  #
-  #
-  # Showing options after command\&.
-  #
-  # Audit Log Variables and Options
-  #
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | Variable_name             | Value         |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | audit_log_buffer_size     | 1048576       |
-  | audit_log_file            | audit\&.log     |
-  | audit_log_flush           | OFF           |
-  | audit_log_policy          | QUERIES       |
-  | audit_log_rotate_on_size  | 0             |
-  | audit_log_strategy        | ASYNCHRONOUS  |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+shell> \fBmysqlauditadmin \-\-show\-options \-\-server=root@localhost:3310 policy \e
+       \-\-value=QUERIES\fR
+#
+# Showing options before command\&.
+#
+# Audit Log Variables and Options
+#
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Variable_name                | Value         |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| audit_log_buffer_size        | 1048576       |
+| audit_log_connection_policy  | ALL           |
+| audit_log_current_session    | ON            |
+| audit_log_exclude_accounts   |               |
+| audit_log_file               | audit\&.log     |
+| audit_log_flush              | OFF           |
+| audit_log_format             | OLD           |
+| audit_log_include_accounts   |               |
+| audit_log_policy             | ALL           |
+| audit_log_rotate_on_size     | 0             |
+| audit_log_statement_policy   | ALL           |
+| audit_log_strategy           | ASYNCHRONOUS  |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+#
+# Executing POLICY command\&.
+#
+#
+# Showing options after command\&.
+#
+# Audit Log Variables and Options
+#
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Variable_name                | Value         |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| audit_log_buffer_size        | 1048576       |
+| audit_log_connection_policy  | NONE          |
+| audit_log_current_session    | ON            |
+| audit_log_exclude_accounts   |               |
+| audit_log_file               | audit\&.log     |
+| audit_log_flush              | OFF           |
+| audit_log_format             | OLD           |
+| audit_log_include_accounts   |               |
+| audit_log_policy             | ALL           |
+| audit_log_rotate_on_size     | 0             |
+| audit_log_statement_policy   | ALL           |
+| audit_log_strategy           | ASYNCHRONOUS  |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
 .fi
 .if n \{\
 .RE
 .\}
 .PP
-To change the audit log automatic file rotation size to 32535, and show the system variables before and after the execution of the
-\fIrotate_on_size\fR
-command, use the following command\&. (Notice that the value set is actually 28672 because the specified rotate_on_size value is truncated to a multiple of 4096):
+To change the audit log automatic file rotation size (audit_log_rotate_on_size) to 32535, and show the system variables before and after the execution of the
+rotate_on_size
+command, use the following command\&. (Notice that the value set is actually 28672 because the specified
+rotate_on_size
+value is truncated to a multiple of 4096):
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-shell> mysqlauditadmin \-\-show\-options \-\-server=root@localhost:3310 rotate_on_size \e
-     \-\-value=32535
-  #
-  # Showing options before command\&.
-  #
-  # Audit Log Variables and Options
-  #
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | Variable_name             | Value         |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | audit_log_buffer_size     | 1048576       |
-  | audit_log_file            | audit\&.log     |
-  | audit_log_flush           | OFF           |
-  | audit_log_policy          | ALL           |
-  | audit_log_rotate_on_size  | 0             |
-  | audit_log_strategy        | ASYNCHRONOUS  |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  #
-  # Executing ROTATE_ON_SIZE command\&.
-  #
-  #
-  # Showing options after command\&.
-  #
-  # Audit Log Variables and Options
-  #
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | Variable_name             | Value         |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
-  | audit_log_buffer_size     | 1048576       |
-  | audit_log_file            | audit\&.log     |
-  | audit_log_flush           | OFF           |
-  | audit_log_policy          | ALL           |
-  | audit_log_rotate_on_size  | 28672         |
-  | audit_log_strategy        | ASYNCHRONOUS  |
-  +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+ 
+shell> \fBmysqlauditadmin \-\-show\-options \-\-server=root@localhost:3310 rotate_on_size \e
+       \-\-value=32535\fR
+#
+# Showing options before command\&.
+#
+# Audit Log Variables and Options
+#
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Variable_name                | Value         |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| audit_log_buffer_size        | 1048576       |
+| audit_log_connection_policy  | ALL           |
+| audit_log_current_session    | ON            |
+| audit_log_exclude_accounts   |               |
+| audit_log_file               | audit\&.log     |
+| audit_log_flush              | OFF           |
+| audit_log_format             | OLD           |
+| audit_log_include_accounts   |               |
+| audit_log_policy             | ALL           |
+| audit_log_rotate_on_size     | 0             |
+| audit_log_statement_policy   | ALL           |
+| audit_log_strategy           | ASYNCHRONOUS  |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+#
+# Executing POLICY command\&.
+#
+#
+# Showing options after command\&.
+#
+# Audit Log Variables and Options
+#
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Variable_name                | Value         |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| audit_log_buffer_size        | 1048576       |
+| audit_log_connection_policy  | NONE          |
+| audit_log_current_session    | ON            |
+| audit_log_exclude_accounts   |               |
+| audit_log_file               | audit\&.log     |
+| audit_log_flush              | OFF           |
+| audit_log_format             | OLD           |
+| audit_log_include_accounts   |               |
+| audit_log_policy             | ALL           |
+| audit_log_rotate_on_size     | 28672         |
+| audit_log_statement_policy   | ALL           |
+| audit_log_strategy           | ASYNCHRONOUS  |
++\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
 .fi
 .if n \{\
 .RE
@@ -530,8 +652,8 @@ To perform a copy of a audit log file to another location, use the following com
 .RS 4
 .\}
 .nf
-shell> mysqlauditadmin \-\-audit\-log\-name=\&.\&./SERVER/data/audit\&.log\&.13486539046497235 \e
-     copy \-\-copy\-to=/BACKUP/Audit_Logs
+shell> \fBmysqlauditadmin \-\-audit\-log\-name=\&.\&./SERVER/data/audit\&.log\&.13486539046497235 \e
+       copy \-\-copy\-to=/BACKUP/Audit_Logs\fR
 .fi
 .if n \{\
 .RE
@@ -543,14 +665,26 @@ To copy a audit log file from a remote server/location to the current location (
 .RS 4
 .\}
 .nf
-shell> mysqlauditadmin \-\-audit\-log\-name=audit\&.log\&.13486539046497235 \e
-     copy \-\-remote\-login=user:host \-\-copy\-to=\&.
+shell> \fBmysqlauditadmin \-\-audit\-log\-name=audit\&.log\&.13486539046497235 \e
+       copy \-\-remote\-login=user:host \-\-copy\-to=\&.\fR
 .fi
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The user must have permissions to read the audit log on disk and write the file to the remove location\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "NOTES"
 .IP " 1." 4
 audit log
@@ -565,11 +699,11 @@ audit log plugin enabled
 .IP " 3." 4
 \fBmysql_config_editor\fR \(em MySQL Configuration Utility
 .RS 4
-\%http://dev.mysql.com/doc/refman/5.6/en/mysql-config-editor.html
+\%http://dev.mysql.com/doc/refman/5.7/en/mysql-config-editor.html
 .RE
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

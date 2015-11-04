@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqlrplcheck\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLRPLCHECK\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLRPLCHECK\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -176,8 +176,7 @@ To see the values from the
 statement, use the
 \fB\-\-show\-slave\-status\fR
 option\&.
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqlrplcheck\fR
 accepts the following command\-line options:
 .sp
@@ -202,9 +201,60 @@ Display a help message and exit\&.
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-license
+.sp
+Display license information and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-master=<source>
 .sp
-Connection information for the master server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+Connection information for the master server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -260,7 +310,45 @@ on the master\&.
 .\}
 \-\-slave=<source>
 .sp
-Connection information for the slave server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+Connection information for the slave server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -274,6 +362,58 @@ Connection information for the slave server in the format: <\fIuser\fR>[:<\fIpas
 \-\-suppress
 .sp
 Suppress warning messages\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-ca
+.sp
+The path to a file that contains a list of trusted SSL CAs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
 .RE
 .sp
 .RS 4
@@ -320,8 +460,7 @@ Display version information and exit\&.
 .sp
 Change the display width of the test report\&. The default is 75 characters\&.
 .RE
-      NOTES
-.PP
+NOTES.PP
 The login user must have the appropriate permissions to execute
 \fBSHOW SLAVE STATUS\fR,
 \fBSHOW MASTER STATUS\fR, and
@@ -333,15 +472,14 @@ Mixing IP and hostnames is not recommended\&. The replication\-specific utilitie
 For example, if you setup replication using MASTER_HOST=ubuntu\&.net on the slave and later connect to the slave with mysqlrplcheck and have the master specified as \-\-master=192\&.168\&.0\&.6 using the valid IP address for ubuntu\&.net, you must have the ability to do a reverse name lookup to compare the IP (192\&.168\&.0\&.6) and the hostname (ubuntu\&.net) to determine if they are the same machine\&.
 .PP
 The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
-      EXAMPLES
-.PP
+EXAMPLES.PP
 To check the prerequisites of a master and slave that currently are actively performing replication, use the following command:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-$ mysqlrplcheck \-\-master=root@host1:3310 \-\-slave=root@host2:3311
+shell> \fBmysqlrplcheck \-\-master=root@host1:3310 \-\-slave=root@host2:3311\fR
 # master on host1: \&.\&.\&. connected\&.
 # slave on host2: \&.\&.\&. connected\&.
 Test Description                                                  Status
@@ -372,8 +510,8 @@ as well as additional details, use this command:
 .RS 4
 .\}
 .nf
-$ mysqlrplcheck \-\-master=root@host1:3310 \-\-slave=root@host2:3311 \e
-  \-\-show\-slave\-status \-vv
+shell> \fBmysqlrplcheck \-\-master=root@host1:3310 \-\-slave=root@host2:3311 \e\fR
+  \fB\-\-show\-slave\-status \-vv\fR
 # master on host1: \&.\&.\&. connected\&.
 # slave on host2: \&.\&.\&. connected\&.
 Test Description                                                  Status
@@ -455,11 +593,25 @@ Checking slave delay (seconds behind master)                       [pass]
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The users on the master need the following privileges: SELECT and INSERT privileges on mysql database, REPLICATION SLAVE, REPLICATION CLIENT and GRANT OPTION\&. The slave users need the SUPER privilege\&.
+.PP
+Also, when using GTIDs, the slave users must also have SELECT privilege over the mysql database\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

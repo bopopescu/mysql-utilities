@@ -24,7 +24,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
 
 # This file was auto-generated.
-_GENERATED_ON = '2014-10-10'
+_GENERATED_ON = '2014-11-05'
 _MYSQL_VERSION = (5, 7, 5)
 
 """This module contains the MySQL Server and Client error codes"""

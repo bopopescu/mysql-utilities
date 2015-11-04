@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqlfailover\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLFAILOVER\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLFAILOVER\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -39,7 +39,10 @@ mysqlfailover \- Automatic replication failover
 .PP
 This utility permits users to perform replication health monitoring and automatic failover on a replication topology consisting of a master and its slaves\&. The utility is designed to run interactively or continuously refreshing the health information at periodic intervals\&. Its primary mission is to monitor the master for failure and when a failure occurs, execute failover to the best slave available\&. The utility accepts a list of slaves to be considered the candidate slave\&.
 .PP
-This utility is designed to work exclusively for servers that support global transaction identifiers (GTIDs) and have GTID_MODE=ON\&. MySQL server versions 5\&.6\&.9 and higher support GTIDs\&. See the MySQL server online reference manual for more information about setting up replication with GTIDs enabled\&.
+This utility is designed to work exclusively for servers that support global transaction identifiers (GTIDs) and have
+gtid_mode=ON\&. MySQL server versions 5\&.6\&.5 and higher support GTIDs\&. See
+\m[blue]\fBReplication with Global Transaction Identifiers\fR\m[]\&\s-2\u[1]\d\s+2
+for more information\&.
 .PP
 The user can specify the interval in seconds to use for detecting the master status and generating the health report using the
 \fB\-\-interval\fR
@@ -47,20 +50,45 @@ option\&. At each interval, the utility will check to see if the server is alive
 \fB\-\-ping\fR
 option (see below)\&.
 .PP
-If the master is found to be offline or unreachable, the utility will execute one of the following actions based on the value of the
+If the master is found to be offline or unreachable, the utility will execute one of the following actions based on the
 \fB\-\-failover\-mode\fR
-option\&.
-.PP
+option value\&. The available values are:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \fBauto\fR
-Execute automatic failover to the list of candidates first and if no slaves are viable, continue to locate a viable candidate from the list of slaves\&. If no slaves are found to be a viable candidate, the utility will generate and error and exit\&.
-.PP
+(default): Execute automatic failover to the list of candidates first and if no slaves are viable, continue to locate a viable candidate from the list of slaves\&. If no slaves are found to be a viable candidate, the utility will generate and error and exit\&.
+.sp
 Once a candidate is found, the utility will conduct failover to the best slave\&. The command will test each candidate slave listed for the prerequisites\&. Once a candidate slave is elected, it is made a slave of each of the other slaves thereby collecting any transactions executed on other slaves but not the candidate\&. In this way, the candidate becomes the most up\-to\-date slave\&.
-.PP
-\fBelect\fR
-This mode is the same as auto except if no candidates specified in the list of candidate slaves are viable, it does not check the remaining slaves and generates and error and exits\&.
-.PP
-\fBfail\fR
-This mode produces an error and does not failover when the master is downed\&. This mode is used to provide periodic health monitoring without the failover action taken\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBelect\fR: This mode is the same as auto, except if no candidates specified in the list of candidate slaves are viable, then it does not check the remaining slaves, and instead generates an error and then exits\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBfail\fR: This mode produces an error and does not failover when the master is downed\&. This mode is used to provide periodic health monitoring without the failover action taken\&.
+.RE
 .PP
 For all options that permit specifying multiple servers, the options require a comma\-separated list of connection parameters in the following form (where the password, port, and socket are optional)\&.:
 .sp
@@ -75,7 +103,7 @@ For all options that permit specifying multiple servers, the options require a c
 .RE
 .\}
 .PP
-The utility permits users to discover slaves connected to the master\&. In order to use the discover slaves feature, all slaves must use the \-\-report\-host and \-\-report\-port startup variables to specify the correct hostname and ip port of the slave\&. If these are missing or report the incorrect information, the slaves health may not be reported correctly or the slave may not be listed at all\&. The discover slaves feature ignores any slaves it cannot connect to\&.
+The utility permits users to discover slaves connected to the master\&. In order to use the discover slaves feature, all slaves must use the \-\-report\-host and \-\-report\-port startup variables to specify the correct hostname and port of the slave\&. If these are missing or report the incorrect information, the slave\*(Aqs health may not be reported correctly or the slave may not be listed at all\&. The discover slaves feature ignores any slaves to which it cannot connect\&.
 .PP
 The discover slaves feature is run automatically on each interval\&.
 .PP
@@ -99,31 +127,71 @@ option is specified)\&.
 .PP
 The format of the log file includes the date and time of the event, the level of the event (informational \- INFO, warning \- WARN, error \- ERROR, critical failure \- CRITICAL), and the message reported by the utility\&.
 .PP
-The interface provides the user with a number of options for displaying additional information\&. The user can choose to see the replication health report (default), or choose to see the list of GTIDs in use, the UUIDs in use, and if logging is enabled the contents of the log file\&. Each of these reports is described below\&.
-.PP
+The interface provides a number of options for displaying additional information\&. You can choose to view the replication health report (default), or choose to view the list of GTIDs in use, the UUIDs in use, or view the log file contents if logging is enabled\&. Each of these reports is described below\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \fBhealth\fR
 Display the replication health of the topology\&. This report is the default view for the interface\&. By default, this includes the host name, port, role (MASTER or SLAVE) of the server, state of the server (UP = is connected, WARN = not connected but can ping, DOWN = not connected and cannot ping), the GTID_MODE, and health state\&.
-.PP
-The master health state is based on the following; if GTID_MODE=ON, the server must have binary log enabled, and there must exist a user with the REPLICATE SLAVE privilege\&.
-.PP
-The slave health state is based on the following; the IO_THREAD and SQL_THREADS must be running, it must be connected to the master, there are no errors, the slave delay for non\-gtid enabled scenarios is not more than the threshold provided by the
+.sp
+The master health state is based on the following: if GTID_MODE=ON, the server must have the binary log enabled, and a user must exist with the REPLICATE SLAVE privilege\&.
+.sp
+The
+\fB\-\-seconds\-behind\fR
+option is used to detect when a slave is behind the master\&. It allows users to set a threshold for reporting purposes only\&. It does not apply to slave candidacy or selection during failover\&.
+.sp
+The slave health state is based on the following: the IO_THREAD and SQL_THREADS must be running, it must be connected to the master, there are no errors, the slave delay for non\-GTID enabled scenarios is not more than the threshold provided by the
 \fB\-\-max\-position\fR
 and the slave is reading the correct master log file, and slave delay is not more than the
 \fB\-\-seconds\-behind\fR
 threshold option\&.
-.PP
+.sp
 At each interval, if the discover slaves option was specified at startup and new slaves are discovered, the health report is refreshed\&.
-.PP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \fBgtid\fR: Display the master\*(Aqs list of executed GTIDs, contents of the GTID variables;
 @@GLOBAL\&.GTID_EXECUTED,
 @@GLOBAL\&.GTID_PURGED, and
-@@GLOBAL\&.GTID_OWNED\&. Thus, the user can toggle through four screens by pressing the \*(AqG\*(Aq key repeatedly\&. The display will cycle through all four screens restarting after the fourth screen\&.
-.PP
+@@GLOBAL\&.GTID_OWNED\&. Thus, you can toggle through the four screens by pressing the \*(AqG\*(Aq key\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \fBUUID\fR: Display universally unique identifiers (UUIDs) for all servers\&.
-.PP
-\fBLog\fR: This option is visible only if the
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBLog\fR: This option displays the contents of the log file, which only visible if the
 \fB\-\-log\fR
-option is specified\&. Show the contents of the log file\&. This can be helpful to see at a later time when failover occurred and the actions or messages recorded at the time\&.
+option is specified\&. This can be helpful to see when failover occurred, and which actions or messages were recorded at the time\&.
+.RE
 .PP
 The user interface is designed to match the size of the terminal window in which it is run\&. A refresh option is provided to permit users to resize their terminal windows or refresh the display at any time\&. However, the interface will automatically resize to the terminal window on each interval\&.
 .PP
@@ -143,7 +211,7 @@ option\&.
 .PP
 To run the utility as a daemon, use the
 \fB\-\-daemon\fR
-option\&. There are three commands that can by used in
+option\&. There are four commands that can be used in
 \fB\-\-daemon\fR
 option\&. These include:
 .sp
@@ -204,80 +272,7 @@ Starts the daemon, but it will not detach the process from the console\&. The
 \fB\-\-log\fR
 option is required\&.
 .RE
-.PP
-The utility supports two modes of operation\&. The default mode, running as a console, works as described above\&. An additional mode that permits you to run the utility as a daemon is provided for POSIX platforms\&.
-.PP
-When run as a daemon, the utility does not have interactivity\&. However, all events are written to the log file\&. You can control what is written to the log by using the
-\fB\-\-report\-values\fR
-option\&.
-.PP
-To run the utility as a daemon, use the
-\fB\-\-daemon\fR
-option\&. There are three commands that can by used in
-\fB\-\-daemon\fR
-option\&. These include:
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-start
-.sp
-Starts the daemon\&. The
-\fB\-\-log\fR
-option is required\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-stop
-.sp
-Stops the daemon\&. The option
-\fB\-\-pidfile\fR
-must be the same when starting the daemon\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-restart
-.sp
-Restarts the daemon\&. The option
-\fB\-\-pidfile\fR
-must be the same when starting the daemon\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-nodetach
-.sp
-Starts the daemon, but it will not detach the process from the console\&. The
-\fB\-\-log\fR
-option is required\&.
-.RE
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqlfailover\fR
 accepts the following command\-line options:
 .sp
@@ -302,9 +297,60 @@ Display a help message and exit\&.
 .sp -1
 .IP \(bu 2.3
 .\}
+\-\-license
+.sp
+Display license information and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 \-\-candidates=<candidate slave connections>
 .sp
-Connection information for candidate slave servers for failover in the form: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&. Valid only with failover command\&. List multiple slaves in comma\-separated list\&.
+Connection information for candidate slave servers\&. Valid only with failover command\&. List multiple slaves in comma\-separated list\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -317,14 +363,16 @@ Connection information for candidate slave servers for failover in the form: <\f
 .\}
 \-\-daemon=<command>
 .sp
-Run as a daemon\&. It can be
-\fBstart\fR
+Run as a daemon\&. The
+\fIcommand\fR
+can be
+start
 (start daemon),
-\fBstop\fR
+stop
 (stop daemon),
-\fBrestart\fR
+restart
 (stop then start the daemon) or
-\fBnodetach\fR
+nodetach
 (start but do not detach the process)\&. This option is only available for POSIX systems\&.
 .RE
 .sp
@@ -468,7 +516,45 @@ Specify maximum age of log entries in days\&. Entries older than this will be pu
 .\}
 \-\-master=<connection>
 .sp
-Connection information for the master server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+Connection information for the master server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -494,7 +580,7 @@ Used to detect slave delay\&. The maximum difference between the master\*(Aqs lo
 .\}
 \-\-pedantic, \-p
 .sp
-Used to stop failover if some inconsistencies are found (e\&.g\&. errant transactions on slaves or SQL thread errors) during servers checks\&. By default, the utility will only issue warnings if issues are found when checking slaves status during failover and will continue its execution unless this option is specified\&.
+Used to stop failover if some inconsistencies are found, such as errant transactions on slaves or SQL thread errors, during server checks\&. By default, the utility only generates warnings if issues are found when checking a slave\*(Aqs status during failover, and it will continue its execution unless this option is specified\&.
 .RE
 .sp
 .RS 4
@@ -507,7 +593,10 @@ Used to stop failover if some inconsistencies are found (e\&.g\&. errant transac
 .\}
 \-\-pidfile=<pidfile>
 .sp
-Pidfile for running mysqlfailover as a daemon\&. This file contains the PID (process identifier), that uniquely identify a process\&. It is needed to identify and control the process forked by mysqlfailover\&.
+Pidfile for running
+\fBmysqlfailover\fR
+as a daemon\&. This file contains the PID (process identifier), that uniquely identifies a process\&. It is needed to identify and control the process forked by
+\fBmysqlfailover\fR\&.
 .RE
 .sp
 .RS 4
@@ -520,7 +609,22 @@ Pidfile for running mysqlfailover as a daemon\&. This file contains the PID (pro
 .\}
 \-\-ping=<number>
 .sp
-Number of ping attempts for detecting downed server\&. Note: on some platforms this is the same as number of seconds to wait for ping to return\&. Default is 3 seconds\&.
+Number of ping attempts for detecting a downed server\&. Default is 3 seconds\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+On some platforms, this is the same as number of seconds to wait for ping to return\&.
+.sp .5v
+.RE
 .RE
 .sp
 .RS 4
@@ -591,7 +695,7 @@ Default = health\&.
 .\}
 \-\-rpl\-user=:<replication_user>
 .sp
-The user and password for the replication user requirement , in the form: <\fIuser\fR>[:<\fIpassword\fR>] or <\fIlogin\-path\fR>\&. E\&.g\&. rpl:passwd
+The user and password for the replication user requirement, in the form: <\fIuser\fR>[:<\fIpassword\fR>] or <\fIlogin\-path\fR>\&. E\&.g\&. rpl:passwd
 .sp
 Default = None\&.
 .RE
@@ -621,7 +725,7 @@ Default = None (no threshold checking)\&.
 .\}
 \-\-seconds\-behind=<seconds>
 .sp
-Used to detect slave delay\&. The maximum number of seconds behind the master permitted before slave is considered behind the master\&. Default = 0\&.
+Used to detect slave delay (only for health reporting purposes)\&. The maximum number of seconds behind the master permitted before slave is considered behind the master in the health report state\&. Default = 0\&.
 .RE
 .sp
 .RS 4
@@ -634,7 +738,97 @@ Used to detect slave delay\&. The maximum number of seconds behind the master pe
 .\}
 \-\-slaves=<slave connections>
 .sp
-Connection information for slave servers in the form: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&. List multiple slaves in comma\-separated list\&. The list will be evaluated literally whereby each server is considered a slave to the master listed regardless if they are a slave of the master\&.
+Connection information for slave servers\&. List multiple slaves in comma\-separated list\&. The list will be evaluated literally whereby each server is considered a slave to the master listed regardless if they are a slave of the master\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-ca
+.sp
+The path to a file that contains a list of trusted SSL CAs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-key
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
 .RE
 .sp
 .RS 4
@@ -683,28 +877,28 @@ Specify how much information to display\&. Use this option multiple times to inc
 .sp
 Display version information and exit\&.
 .RE
-      NOTES
-.PP
-The login user must have the appropriate permissions to execute
-\fBSHOW SLAVE STATUS\fR,
-\fBSHOW MASTER STATUS\fR, and
-\fBSHOW VARIABLES\fR
-on the appropriate servers as well as grant the REPLICATE SLAVE privilege\&. Different permission are required by the failover utility to run successfully for master and slaves\&. In particular, users connectioned to slaves and candidates require
+NOTES.PP
+The login user must have the appropriate permissions for the utility to check servers and monitor their status (e\&.g\&., SHOW SLAVE STATUS, SHOW MASTER STATUS)\&. The user must also have permissions to execute the failover procedure (e\&.g\&., STOP SLAVE, START SLAVE, WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS, CHANGE MASTER TO \&.\&.\&.)\&. Lastly, the user must have the REPLICATE SLAVE privilege for slaves to connect to their master\&. The same permissions are required by the failover utility for master and slaves in order to run successfully\&. In particular, users connected to slaves, candidates and master require
 \fBSUPER\fR,
 \fBGRANT OPTION\fR,
-\fBREPLICATION SLAVE\fR, and
-\fBRELOAD\fR
-privileges\&.
-.PP
-In addition, the user connected to the master requires
+\fBREPLICATION SLAVE\fR,
+\fBRELOAD\fR,
 \fBDROP\fR,
 \fBCREATE\fR,
 \fBINSERT\fR
 and
 \fBSELECT\fR
-privileges to register the failover console\&. The utility checks permissions for the master, slaves, and candidates at startup\&.
+privileges\&.
 .PP
-At startup, the console will attempt to register itself with the master\&. If another console is already registered, and the failover mode is auto or elect, the console will be blocked from running failover\&. When a console quits, it deregisters itself from the master\&. If this process is broken, the user may override the registration check by using the
+The
+\fBDROP\fR,
+\fBCREATE\fR,
+\fBINSERT\fR
+and
+\fBSELECT\fR
+privileges are required to register the failover instance on the initial master or the new master (after a successful failover)\&. Therefore, since any slave can become the new master, slaves and candidates also require those privileges\&. The utility checks permissions for the master, slaves, and candidates at startup\&.
+.PP
+At startup, the console will attempt to register itself with the master\&. If another console is already registered, and the failover mode is auto or elect, the console will be blocked from running failover\&. When a console quits, it unregisters itself from the master\&. If this process is broken, the user may override the registration check by using the
 \fB\-\-force\fR
 option\&.
 .PP
@@ -737,31 +931,87 @@ When the console starts, a row is inserted containing the hostname and port of t
 option, the row is deleted\&.
 .PP
 When running the utility using the
-\fB\-\-daemon\fR
-option with
-\fBnodetach\fR
-the
+\fB\-\-daemon=nodetach\fR
+option, the
 \fB\-\-pidfile\fR
-option can be omitted, will be ignored if used\&.
+option can be omitted\&. It will be ignored if used\&.
 .PP
-When running the utility using the
-\fB\-\-daemon\fR
-option with
-\fBnodetach\fR
-the
-\fB\-\-pidfile\fR
-option can be omitted, will be ignored if used\&.
-      EXAMPLES
+When using the external scripts, the following parameters are passed in the order shown\&.
 .PP
+For example, suppose you have a script named \*(Aqrun_before\&.sh\*(Aq and you specify that you want it executing before the failover is performed (using the
+\fB\-\-exec\-before\fR
+option)\&. Further, let us assume the master MySQL Server is using port 3306 on the host \(oqhost1\(cq and the MySQL Server that will become the new master is using port 3308 on host \*(Aqcan_host2\*(Aq\&. The script would therefore be invoked in the following manner\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+% run_before\&.sh host1 3306 can_host2 3308
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&5.2.\ \&External Script Parameters
+.TS
+allbox tab(:);
+lB lB.
+T{
+MySQL Failover Option
+T}:T{
+Parameters Passed to External Script
+T}
+.T&
+l l
+l l
+l l
+l l
+l l.
+T{
+\fB\-\-exec\-before\fR
+T}:T{
+master host, master port, candidate host, candidate port
+T}
+T{
+\fB\-\-exec\-after\fR
+T}:T{
+new master host, new master port
+T}
+T{
+\fB\-\-exec\-fail\-check\fR
+T}:T{
+master host, master port
+T}
+T{
+\fB\-\-exec\-post\-failover\fR (no errors
+              during failover)
+T}:T{
+old master host, old master port, new master host, new master port
+T}
+T{
+\fB\-\-exec\-post\-failover\fR (errors
+              during failover)
+T}:T{
+old master host, old master port
+T}
+.TE
+.sp 1
+EXAMPLES.PP
 To launch the utility, you must specify at a minimum the
 \fB\-\-master\fR
 option and either the
 \fB\-\-discover\-slaves\-login\fR
 option or the
 \fB\-\-slaves\fR
-option\&. The option: option can be used in conjunction with the
+option\&. The
+\fB\-\-discover\-slaves\-login\fR
+option can be used in conjunction with the
 \fB\-\-slaves\fR
-option to specify a list of known slaves (or slaves that do not report their host and ip) and to discover any other slaves connected to the master\&.
+option to specify a list of known slaves (or slaves that do not report their host and IP) and to discover any other slaves connected to the master\&.
 .PP
 An example of the user interface and some of the report views are shown in the following examples\&.
 .if n \{\
@@ -791,7 +1041,7 @@ The default interface will display the replication health report like the follow
 .RS 4
 .\}
 .nf
-$ mysqlfailover \-\-master=root@localhost:3331 \-\-discover\-slaves\-login=root \-\-log=log\&.txt
+shell> \fBmysqlfailover \-\-master=root@localhost:3331 \-\-discover\-slaves\-login=root \-\-log=log\&.txt\fR
 MySQL Replication Monitor and Failover Utility
 Failover Mode = auto     Next Interval = Mon Mar 19 15:56:03 2012
 Master Information
@@ -815,9 +1065,17 @@ Q\-quit R\-refresh H\-health G\-GTID Lists U\-UUIDs L\-log entries
 .RE
 .\}
 .PP
-Pressing the \*(Aqq\*(Aq key will exit the utility\&. Pressing the \*(Aqr\*(Aq key will refresh the current display\&. Pressing the \*(Aqh\*(Aq key will return to the replication health report\&.
+Press
+Q
+to exit the utility,
+R
+to refresh the current display, and
+H
+returns to the replication health report\&.
 .PP
-If the user presses the \*(Aqg\*(Aq key, the gtid report is shown like the following\&. The first page shown is the master\*(Aqs executed GTID set:
+Press
+G
+key to show a GTID report similar to the following\&. The first page shown is the master\*(Aqs executed GTID set:
 .sp
 .if n \{\
 .RS 4
@@ -844,11 +1102,17 @@ Q\-quit R\-refresh H\-health G\-GTID Lists U\-UUIDs L\-log entries Up|Down\-scro
 .RE
 .\}
 .PP
-If the user continues to press the \*(Aqg\*(Aq key, the display will cycle through the three gtid lists\&.
+Continuing to press
+G
+key cycles through the three GTID lists\&.
 .PP
-If the list is longer than the screen permits as shown in the example above, the scroll up and down help is also shown\&. In this case, if the user presses the down arrow, the list will scroll down\&.
+If the list is longer than the screen permits as shown in the example above, the scroll up and down help is also shown\&. In this case, press the
+down arrow
+key to scroll down\&.
 .PP
-If the user presses the \*(Aqu\*(Aq key, the list of UUIDs used in the topology are shown\&.:
+Press
+U
+to view the list of UUIDs used in the topology, for example:
 .sp
 .if n \{\
 .RS 4
@@ -929,9 +1193,11 @@ Q\-quit R\-refresh H\-health G\-GTID Lists U\-UUIDs L\-log entries
 .RE
 .\}
 .PP
-If the user presses the \*(Aql\*(Aq key and the
+Pressing
+L
+with the
 \fB\-\-log\fR
-option was specified, the interface will show the entries in the log file\&. Note: example truncated for space allowance\&.:
+option specified causes the interface to show the entries in the log file, such as:
 .sp
 .if n \{\
 .RS 4
@@ -959,11 +1225,31 @@ Q\-quit R\-refresh H\-health G\-GTID Lists U\-UUIDs L\-log entries Up|Down\-scro
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The user must have permissions to monitor the servers on the topology and configure replication to successfully perform the failover operation\&. Additional permissions are also required to register and unregister the running mysqlfailover instance on the master and slaves\&. Specifically, the login user must have the following privileges: SUPER, GRANT OPTION, REPLICATION SLAVE, RELOAD, DROP, CREATE, INSERT, and SELECT\&.
+.PP
+The referred permissions are required for the login users used for all servers (master, slaves and candidates)\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
+.SH "NOTES"
+.IP " 1." 4
+Replication with Global Transaction Identifiers
+.RS 4
+\%http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html
+.RE
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

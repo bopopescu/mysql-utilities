@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqldbcopy\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLDBCOPY\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLDBCOPY\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -102,9 +102,11 @@ option permits you to select from the following replication statements to includ
 .\}
 \fBmaster\fR
 .sp
-Include the
+Create and execute a
 \fBCHANGE MASTER\fR
-statement to start a new slave with the current server acting as the master\&. This executes the appropriate STOP and START slave statements\&. The
+statement to make the destination server a slave of the server specified in the
+\fB\-\-source\fR
+option\&. This executes the appropriate STOP and START slave statements\&. The
 \fBSTOP SLAVE\fR
 statement is executed at the start of the copy and the
 \fBCHANGE MASTER\fR
@@ -123,13 +125,15 @@ statements are executed after the copy\&.
 .\}
 \fBslave\fR
 .sp
-Include the
+Create and execute a
 \fBCHANGE MASTER\fR
-statement to start a new slave using the current server\*(Aqs master information\&. This executes the appropriate STOP and START slave statements\&. The STOP SLAVE statement is executed at the start of the copy and the
+statement to make the destination server a slave connected to the same master as the server specified in the
+\fB\-\-source\fR
+option\&. This executes the appropriate STOP and START slave statements\&. The STOP SLAVE statement is executed at the start of the copy and the
 \fBCHANGE MASTER\fR
 followed by the
 \fBSTART SLAVE\fR
-statements follow the copy\&.
+statements after the copy\&.
 .RE
 .PP
 To include the replication user in the
@@ -147,8 +151,7 @@ option\&.
 To make the most use of GTIDs, you should copy all of the databases on the server with the
 \fB\-\-all\fR
 option\&.
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqldbcopy\fR
 accepts the following command\-line options:
 .sp
@@ -163,6 +166,33 @@ accepts the following command\-line options:
 \-\-help
 .sp
 Display a help message and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-license
+.sp
+Display license information and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-character\-set=<charset>
+.sp
+Sets the client character set\&. The default is retrieved from the server variable
+character_set_client\&.
 .RE
 .sp
 .RS 4
@@ -188,7 +218,45 @@ The engine to use for tables if the destination server does not support the orig
 .\}
 \-\-destination=<destination>
 .sp
-Connection information for the destination server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>] (where <passwd> is optional and either <port> or <socket> must be provided)\&.
+Connection information for the destination server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -220,9 +288,25 @@ This option does not apply to grants\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-\-\-force
+\-\-drop\-first
 .sp
 Drop each database to be copied if exists before copying anything into it\&. Without this option, an error occurs if you attempt to copy objects into an existing database\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+Before MySQL Utilities 1\&.4\&.2, this option was named
+\-\-force\&.
+.sp .5v
+.RE
 .RE
 .sp
 .RS 4
@@ -243,6 +327,19 @@ Choose the lock type for the operation\&. Permitted lock values are
 \fBsnapshot\fR
 (consistent read using a single transaction)\&. The default is
 \fBsnapshot\fR\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-multiprocess
+.sp
+Specify the number of processes to concurrently copy the specified databases\&. Special values: 0 (number of processes equal to the number of detected CPUs) and 1 (default \- no concurrency)\&. Multiprocessing works at the database level for Windows and at the table level for Non\-Windows (POSIX) systems\&.
 .RE
 .sp
 .RS 4
@@ -300,19 +397,9 @@ for matching\&.
 .sp
 Include replication information\&. Permitted values are
 \fBmaster\fR
-(include the
-\fBCHANGE MASTER\fR
-statement using the source server as the master),
+(make destination a slave of the source server) and
 \fBslave\fR
-(include the
-\fBCHANGE MASTER\fR
-statement using the destination server\*(Aqs master information), and
-\fBboth\fR
-(include the
-\fBmaster\fR
-and
-\fBslave\fR
-options where applicable)\&.
+(make destination a slave of the same master as the source \- only works if the source server is a slave)\&.
 .RE
 .sp
 .RS 4
@@ -386,7 +473,21 @@ Specify objects to skip in the operation as a comma\-separated list (no spaces)\
 .\}
 \-\-source=<source>
 .sp
-Connection information for the destination server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[::<\fIport\fR>][::<\fIsocket\fR>] (where <passwd> is optional and either <port> or <socket> must be provided)\&.
+Connection information for the source server\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
 .RE
 .sp
 .RS 4
@@ -397,9 +498,72 @@ Connection information for the destination server in the format: <\fIuser\fR>[:<
 .sp -1
 .IP \(bu 2.3
 .\}
-\-\-threads
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
 .sp
-Use multiple threads for cross\-server copy\&. The default is 1\&.
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-ca
+.sp
+The path to a file that contains a list of trusted SSL CAs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
 .RE
 .sp
 .RS 4
@@ -433,27 +597,51 @@ Specify how much information to display\&. Use this option multiple times to inc
 .sp
 Display version information and exit\&.
 .RE
-      NOTES
-.PP
+NOTES.PP
 You must provide connection parameters (user, host, password, and so forth) for an account that has the appropriate privileges to access all objects in the operation\&.
 .PP
-To copy all objects from a source, the user must have these privileges:
+On the source to copy all objects from the database, the user must have these privileges:
 \fBSELECT\fR
-and
+for tables,
 \fBSHOW VIEW\fR
-for the database, and
+for views,
+\fBEVENT\fR
+for events and
+\fBTRIGGER\fR
+for triggers\&. Additionally, the
 \fBSELECT\fR
-for the
+privilege is also required for the
 mysql
 database\&.
 .PP
-To copy all objects to a destination, the user must have these privileges:
-\fBCREATE\fR
-for the database,
+On the destination to copy all objects, the user must have these privileges:
+\fBCREATE\fR,
+\fBALTER\fR,
+\fBSELECT\fR,
+\fBINSERT\fR,
+\fBUPDATE\fR,
+\fBLOCK TABLES\fR,
+\fBDROP\fR
+if
+\fB\-\-drop\-first\fR
+option is used,
 \fBSUPER\fR
-(when binary logging is enabled) for procedures and functions, and
+when binary logging is enabled,
+\fBCREATE VIEW\fR
+for views,
+\fBCREATE ROUTINE\fR,
+\fBEXECUTE\fR
+for procedures and functions,
+\fBEVENT\fR
+for events,
+\fBTRIGGER\fR
+for triggers and
 \fBGRANT OPTION\fR
-to copy grants\&.
+to copy grants\&. The
+\fBSUPER\fR
+privilege might also be required for some objects (views, procedures, functions, events and triggers), depending on their
+\fBDEFINER\fR
+value\&.
 .PP
 Actual privileges required may differ from installation to installation depending on the security privileges present and whether the database contains certain objects such as views or events and whether binary logging is enabled\&.
 .PP
@@ -473,15 +661,20 @@ When copying data and including the GTID commands, you may encounter an error si
 .PP
 Cloning databases that contain foreign key constraints does not change the constraint in the cloned table\&. For example, if table db1\&.t1 has a foreign key constraint on table db1\&.t2, when db1 is cloned to db2, table db2\&.t1 will have a foreign key constraint on db1\&.t2\&.
 .PP
-The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
+The path to the MySQL client tools should be included in the
+PATH
+environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the
+\fBmy_print_defaults\fR
+tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
 .PP
 If any database identifier specified as an argument contains special characters or is a reserved word, then it must be appropriately quoted with backticks (\fB`\fR)\&. In turn, names quoted with backticks must also be quoted with single or double quotes depending on the operating system, i\&.e\&. (\fB"\fR) in Windows or (\fB\*(Aq\fR) in non\-Windows systems, in order for the utilities to read backtick quoted identifiers as a single argument\&. For example, to copy a database with the name
 \fBweird`db\&.name\fR
 with
 \fBother:weird`db\&.name\fR, the database pair must be specified using the following syntax (in non\-Windows):
 \fB\*(Aq`weird``db\&.name`:`other:weird``db\&.name`\*(Aq\fR\&.
-      EXAMPLES
 .PP
+Keep in mind that you can only take advantage of multiprocessing if your system has multiple CPUs available for concurrent execution\&. Also note that multiprocessing is applied at a different level according to the operating system where the mysqldbcopy utility is executed (due to python limitations)\&. In particular, it is applied at the database level for Windows (i\&.e\&., different databases are concurrently copied) and at the table level for Non\-Windows (POSIX) systems (i\&.e\&., different tables within the same database are concurrently copied)\&.
+EXAMPLES.PP
 The following example demonstrates how to use the utility to copy a database named
 util_test
 to a new database named
@@ -492,10 +685,10 @@ on the same server:
 .RS 4
 .\}
 .nf
-$ mysqldbcopy \e
-  \-\-source=root:pass@localhost:3310:/test123/mysql\&.sock \e
-  \-\-destination=root:pass@localhost:3310:/test123/mysql\&.sock \e
-  util_test:util_test_copy
+shell> \fBmysqldbcopy \e\fR
+  \fB\-\-source=root:pass@localhost:3310:/test123/mysql\&.sock \e\fR
+  \fB\-\-destination=root:pass@localhost:3310:/test123/mysql\&.sock \e\fR
+  \fButil_test:util_test_copy\fR
 # Source on localhost: \&.\&.\&. connected\&.
 # Destination on localhost: \&.\&.\&. connected\&.
 # Copying database util_test renamed as util_test_copy
@@ -527,10 +720,10 @@ option to the command:
 .RS 4
 .\}
 .nf
-$ mysqldbcopy \e
-  \-\-source=root:pass@localhost:3310:/test123/mysql\&.sock \e
-  \-\-destination=root:pass@localhost:3310:/test123/mysql\&.sock \e
-  util_test:util_test_copy \-\-locking=lock\-all
+shell> \fBmysqldbcopy \e\fR
+  \fB\-\-source=root:pass@localhost:3310:/test123/mysql\&.sock \e\fR
+  \fB\-\-destination=root:pass@localhost:3310:/test123/mysql\&.sock \e\fR
+  \fButil_test:util_test_copy \-\-locking=lock\-all\fR
 # Source on localhost: \&.\&.\&. connected\&.
 # Destination on localhost: \&.\&.\&. connected\&.
 # Copying database util_test renamed as util_test_copy
@@ -560,9 +753,9 @@ To copy one or more databases from a master to a slave, you can use the followin
 .RS 4
 .\}
 .nf
-$ mysqldbcopy \-\-source=root@localhost:3310 \e
-  \-\-destination=root@localhost:3311 test123 \-\-rpl=master \e
-  \-\-rpl\-user=rpl
+shell> \fBmysqldbcopy \-\-source=root@localhost:3310 \e\fR
+  \fB\-\-destination=root@localhost:3311 test123 \-\-rpl=master \e\fR
+  \fB\-\-rpl\-user=rpl\fR
 # Source on localhost: \&.\&.\&. connected\&.
 # Destination on localhost: \&.\&.\&. connected\&.
 # Source on localhost: \&.\&.\&. connected\&.
@@ -584,9 +777,9 @@ To copy a database from one slave to another attached to the same master, you ca
 .RS 4
 .\}
 .nf
-$ mysqldbcopy \-\-source=root@localhost:3311 \e
-  \-\-destination=root@localhost:3312 test123 \-\-rpl=slave \e
-  \-\-rpl\-user=rpl
+shell> \fBmysqldbcopy \-\-source=root@localhost:3311 \e\fR
+  \fB\-\-destination=root@localhost:3312 test123 \-\-rpl=slave \e\fR
+  \fB\-\-rpl\-user=rpl\fR
 # Source on localhost: \&.\&.\&. connected\&.
 # Destination on localhost: \&.\&.\&. connected\&.
 # Source on localhost: \&.\&.\&. connected\&.
@@ -601,11 +794,25 @@ $ mysqldbcopy \-\-source=root@localhost:3311 \e
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The user must have SELECT, SHOW VIEW, EVENT and TRIGGER privileges for the database(s) on the source server\&. On the destination server, the user must have the following privileges for the copied database(s): CREATE, ALTER, SELECT, INSERT, UPDATE, LOCK TABLES, DROP if
+\fB\-\-drop\-first\fR
+option is used, and SUPER depending on the objects DEFINER value\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

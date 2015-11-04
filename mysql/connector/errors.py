@@ -26,6 +26,7 @@
 
 from . import utils
 from .locales import get_client_error
+from .catch23 import PY2
 
 # _CUSTOM_ERROR_EXCEPTIONS holds custom exceptions and is ued by the
 # function custom_error_exception. _ERROR_EXCEPTIONS (at bottom of module)
@@ -97,7 +98,7 @@ def custom_error_exception(error=None, exception=None):
 
     return _CUSTOM_ERROR_EXCEPTIONS
 
-def get_mysql_exception(errno, msg, sqlstate=None):
+def get_mysql_exception(errno, msg=None, sqlstate=None):
     """Get the exception matching the MySQL error
 
     This function will return an exception based on the SQLState. The given
@@ -187,7 +188,7 @@ class Error(Exception):
         if self.msg and self.errno != -1:
             fields = {
                 'errno': self.errno,
-                'msg': self.msg
+                'msg': self.msg.encode('utf8') if PY2 else self.msg
             }
             if self.sqlstate:
                 fmt = '{errno} ({state}): {msg}'
@@ -292,4 +293,8 @@ _SQLSTATE_CLASS_EXCEPTION = {
 _ERROR_EXCEPTIONS = {
     1243: ProgrammingError,
     1210: ProgrammingError,
+    2002: InterfaceError,
+    2013: OperationalError,
+    2049: NotSupportedError,
+    2055: OperationalError,
 }

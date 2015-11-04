@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqluc\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLUC\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLUC\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -79,19 +79,61 @@ The console provides tab completion for all commands, options for utilities, and
 Tab completion for options is similar\&. The user must first type a valid MySQL Utility command then types the first N characters of a command and presses TAB, for example \(en\-verb<TAB>\&. In this case, the console will complete the option\&. For the cases where an option requires a value, the console will complete the option name and append the \*(Aq=\*(Aq character\&. Tab completion for options works for both the full name and the alias (if available)\&. If the user presses TAB twice, the console will display a list of matching options\&. Pressing TAB twice immediately after typing the name of a MySQL Utility will display a list of all options for that utility\&.
 .PP
 Tab completion for variables works the same as that for options\&. In this case, the user must first type the \*(Aq$\*(Aq character then press TAB\&. For example, if a variable $SERVER1 exists, when the user types \(en\-server=$SER<TAB>, the console will complete the $SERVER variable name\&. For cases where there are multiple variables, pressing TAB twice will display a list of all matches to the first $+N characters\&. Pressing TAB twice after typing only the $ character will display a list of all variables\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
 .PP
-Note: the console does not require typing the \*(Aqmysql\*(Aq prefix for the utility\&. For example, if the user types \*(Aqdisku<TAB>\*(Aq the console will complete the command with \*(Aqdiskusage \*(Aq\&.
+The \*(Aqmysql\*(Aq prefix is optional in the console\&. For example, typing \*(Aqdisku<TAB>\*(Aq in the console will complete the command as \*(Aqdiskusage \*(Aq\&.
+.sp .5v
+.RE
 .PP
 Executing utilities is accomplished by typing the complete command and pressing ENTER\&. The user does not have to type \*(Aqpython\*(Aq or provide the \*(Aq\&.py\*(Aq file extension\&. The console will add these if needed\&.
 .PP
 The user can also run commands using the option
 \fB\-\-execute\fR\&. The value for this option is a semi\-colon separated list of commands to execute\&. These can be base commands or MySQL Utility commands\&. The console will execute each command and display the output\&. All commands to be run by the console must appear inside a quoted string and separated by semi\-colons\&. Commands outside of the quoted string will be treated as arguments for the mysqluc utility itself and thus ignored for execution\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
 .PP
-Note: if there is an error in the console or related code, the console will stop executing commands at the point of failure\&. Commands may also be piped into the console using a mechanism like \*(Aqecho \(lq<commands>\(rq | mysqluc\(rq\&.
+In the console, an error in the console or related code will stop executing commands at the point of failure\&. Commands may also be piped into the console using a mechanism such as \*(Aqecho "<commands>" | mysqluc\*(Aq\&.
+.sp .5v
+.RE
 .PP
 The console also allows users to set user\-defined variables for commonly used values in options\&. The syntax is simply \*(Aqset VARNAME=VALUE\*(Aq\&. The user can see a list of all variables by entering the \*(Aqshow variables\*(Aq command\&. To use the values of these variables in utility commands, the user must prefix the value with a \*(Aq$\*(Aq\&. For example, \-\-server=$SERVER1 will substitute the value of the SERVER1 user\-defined variable when the utility is executed\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
 .PP
-Note: user\-defined variables have a session lifetime\&. They are not saved from one execution to another of the users console\&.
+User\-defined variables have a session lifetime\&. They are not saved from one execution to another in the users console\&.
+.sp .5v
+.RE
 .PP
 User\-defined variables may also be set by passing them as arguments to the mysqluc command\&. For example, to set the SERVER1 variable and launch the console, the user can launch the console using this command\&.:
 .sp
@@ -99,14 +141,14 @@ User\-defined variables may also be set by passing them as arguments to the mysq
 .RS 4
 .\}
 .nf
-$ mysqluc SERVER1=root@localhost
+shell> \fBmysqluc SERVER1=root@localhost\fR
 .fi
 .if n \{\
 .RE
 .\}
 .PP
 The user can provide any number of user\-defined variables but they must contain a value and no spaces around the \*(Aq=\*(Aq character\&. Once the console is launched, the user can see all variables using the \*(Aqshow variables\*(Aq command\&.
-      OPTIONS
+OPTIONS
 .sp
 .RS 4
 .ie n \{\
@@ -132,6 +174,19 @@ show program\*(Aqs version number and exit
 \-\-help
 .sp
 show the program\*(Aqs help page
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-license
+.sp
+Display license information and exit\&.
 .RE
 .sp
 .RS 4
@@ -176,7 +231,22 @@ suppress all informational messages
 .\}
 \-\-execute <commands>, \-e <commands>
 .sp
-Execute commands and exit\&. Multiple commands are separated with semi\-colons\&. Note: some platforms may require double quotes around command list\&.
+Execute commands and exit\&. Multiple commands are separated with semi\-colons\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+Some platforms may require double quotes around the command list\&.
+.sp .5v
+.RE
 .RE
 .sp
 .RS 4
@@ -204,20 +274,18 @@ location of utilities
 .sp
 Display width
 .RE
-      NOTES
-.PP
+NOTES.PP
 Using the
 \fB\-\-execute\fR
 option or piping commands to the console may require quotes or double quotes (for example, on Windows)\&.
-      EXAMPLES
-.PP
+EXAMPLES.PP
 To launch the console, use this command:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-$ mysqluc
+shell> \fBmysqluc\fR
 .fi
 .if n \{\
 .RE
@@ -229,7 +297,7 @@ The following demonstrates launching the console and running the console command
 .RS 4
 .\}
 .nf
-$ mysqluc \-e "help utilities"
+shell> \fBmysqluc \-e "help utilities"\fR
 Utility           Description
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-  \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 mysqlindexcheck   check for duplicate or redundant indexes
@@ -252,13 +320,31 @@ mysqlserverclone  start another instance of a running server
 .RE
 .\}
 .PP
-The following demonstrates launching the console to run several commands using the \-\-execute option to including setting a variable for a server connection and executing a utility using variable substitution\&. Note: it may be necessary to escape the \*(Aq$\*(Aq on some platforms (for example, Linux)\&. Output below is an excerpt and is representational only\&.:
+The following demonstrates launching the console to run several commands using the \-\-execute option to including setting a variable for a server connection and executing a utility using variable substitution\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+It may be necessary to escape the \*(Aq$\*(Aq on some platforms, such as Linux\&.
+.sp .5v
+.RE
+.PP
+The output below is an excerpt and is representational only:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-$ mysqluc \-e "set SERVER=root@host123; mysqldiskusage \-\-server=\e$SERVER"
+shell> \fBmysqluc \-e "set SERVER=root@host123; mysqldiskusage \-\-server=\e$SERVER"\fR
 # Source on host123: \&.\&.\&. connected\&.
 NOTICE: Your user account does not have read access to the datadir\&. Data
 sizes will be calculated and actual file sizes may be omitted\&. Some features
@@ -284,7 +370,7 @@ The following demonstrates launching the console using the commands shown above 
 .RS 4
 .\}
 .nf
-$ echo "set SERVER=root@host123; mysqldiskusage \-\-server=\e$SERVER" | mysqluc
+shell> \fBecho "set SERVER=root@host123; mysqldiskusage \-\-server=\e$SERVER" | mysqluc\fR
 .fi
 .if n \{\
 .RE
@@ -296,7 +382,7 @@ The following demonstrates launching the console and setting variables via the c
 .RS 4
 .\}
 .nf
-$ mysqluc SERVER=root@host123 VAR_A=57 \-e "show variables"
+shell> \fBmysqluc SERVER=root@host123 VAR_A=57 \-e "show variables"\fR
 Variable  Value
 \-\-\-\-\-\-\-\-  \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 SERVER    root@host123
@@ -305,11 +391,25 @@ VAR_A     57
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+There are no special permissions required to run
+\fBmysqluc\fR
+however, you must have the necessary privileges to execute the desired utilities\&. See the PERMISSIONS REQUIRED section for each command you wish to execute\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

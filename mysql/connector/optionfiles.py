@@ -30,9 +30,7 @@ import os
 import re
 
 from .catch23 import PY2
-from .connection import DEFAULT_CONFIGURATION
-from .pooling import CNX_POOL_ARGS
-from .fabric import CNX_FABRIC_ARGS
+from .constants import DEFAULT_CONFIGURATION, CNX_POOL_ARGS, CNX_FABRIC_ARGS
 
 # pylint: disable=F0401
 if PY2:
@@ -103,10 +101,14 @@ def read_option_files(**config):
             except KeyError:
                 continue
 
+        not_evaluate = ('password', 'passwd')
         for option, value in config_options.items():
             if option not in config:
                 try:
-                    config[option] = eval(value[0])  # pylint: disable=W0123
+                    if option in not_evaluate:
+                        config[option] = value[0]
+                    else:
+                        config[option] = eval(value[0])  # pylint: disable=W0123
                 except (NameError, SyntaxError):
                     config[option] = value[0]
 

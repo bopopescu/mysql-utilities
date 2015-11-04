@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqlauditgrep\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLAUDITGREP\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLAUDITGREP\FR" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -71,26 +71,26 @@ option:
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 1.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  1." 4.2
+.IP \(bu 2.3
 .\}
 \fIGRID (default)\fR
 .sp
 Display output in grid or table format like that of the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 2.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  2." 4.2
+.IP \(bu 2.3
 .\}
 \fICSV\fR
 .sp
@@ -99,11 +99,11 @@ Display output in comma\-separated values format\&.
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 3.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  3." 4.2
+.IP \(bu 2.3
 .\}
 \fIVERTICAL\fR
 .sp
@@ -111,23 +111,22 @@ Display output in single\-column format like that of the
 \eG
 command for the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .sp
 .RS 4
 .ie n \{\
-\h'-04' 4.\h'+01'\c
+\h'-04'\(bu\h'+03'\c
 .\}
 .el \{\
 .sp -1
-.IP "  4." 4.2
+.IP \(bu 2.3
 .\}
 \fIRAW\fR
 .sp
 Display output results in the original raw format of the audit log records, which is written in XML\&.
 .RE
-      Standard SQL Pattern Matching
-.PP
+Standard SQL Pattern Matching.PP
 The simple patterns defined by the SQL standard enables users to use two characters with special meanings:
 \(lq%\(rq
 (percent) matches zero or more characters, and
@@ -179,8 +178,7 @@ Match any string consisting of one or more characters\&.
 .PP
 For documentation about the standard SQL pattern matching syntax, see
 \m[blue]\fBPattern Matching\fR\m[]\&\s-2\u[1]\d\s+2\&.
-      REGEXP Pattern Matching (POSIX)
-.PP
+REGEXP Pattern Matching (POSIX).PP
 Standard
 \fIREGEXP\fR
 patterns are more powerful than the simple patterns defined in the SQL standard\&. A regular expression is a string of ordinary and special characters specified to match other strings\&. Unlike SQL Patterns,
@@ -291,9 +289,22 @@ Match either the regular expressions from the left or right of
 .\}
 \fI[]\fR
 .sp
-Indicates a set of characters to match\&. Note that, special characters lose their special meaning inside sets\&. In particular,
-^
-acquires a different meaning if it is the first character of the set, matching the complementary set (i\&.e\&., all the characters that are not in the set will be matched)\&.
+Indicates a set of characters to match\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+Special characters lose their special meaning inside sets\&. In particular, the caret symbol (^) acquires a different meaning if it is the first character of the set, matching the complementary set (i\&.e\&., all the characters that are not in the set will be matched)\&.
+.sp .5v
+.RE
 .RE
 .sp
 .RS 4
@@ -452,7 +463,8 @@ f)\&.
 \fI"[^axy]"\fR
 .sp
 Match any character
-\fIexcept\fRa,
+\fIexcept\fR
+a,
 x
 or
 y\&.
@@ -502,8 +514,7 @@ abc\&.
 .PP
 This is a brief overview of regular expressions that can be used to define this type of patterns\&. The full syntax is described in the
 \m[blue]\fBPython "re" module docs\fR\m[]\&\s-2\u[2]\d\s+2, supporting the definition of much more complex pattern matching expression\&.
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqlauditgrep\fR
 accepts the following command\-line options:
 .sp
@@ -570,6 +581,19 @@ Output format to display the resulting data\&. Supported format values: GRID (de
 \-\-help
 .sp
 Display a help message and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-license
+.sp
+Display license information and exit\&.
 .RE
 .sp
 .RS 4
@@ -697,12 +721,14 @@ Specify how much information to display\&. Use this option multiple times to inc
 .sp
 Display version information and exit\&.
 .RE
-      NOTES
-.PP
-This utility is available as of μ 1\&.2\&.0\&.
+NOTES.PP
+This utility is available as of MySQL Utilities 1\&.2\&.0\&.
 .PP
 This utility can only be applied to servers with the
 \m[blue]\fBaudit log plugin enabled\fR\m[]\&\s-2\u[3]\d\s+2\&. And the audit log plugin is available as of MySQL Server versions 5\&.5\&.28 and 5\&.6\&.10\&.
+.PP
+This utility support both of the existing audit log file formats (old and new)\&. The new audit log format is supported as of MySQL Utilities 1\&.4\&.3\&. See
+\m[blue]\fBThe Audit Log File\fR\m[]\&\s-2\u[4]\d\s+2, for more information about available file formats\&.
 .PP
 This utility requires the use of Python version 2\&.6 or higher, but does not support Python 3\&.
 .PP
@@ -719,15 +745,14 @@ option, the following syntax must be used:
 \fB\-\-event\-type=\*(AqCreate DB,Drop DB\*(Aq\fR
 or
 \fB\-\-event\-type="Create DB,Drop DB"\fR\&.
-      EXAMPLES
-.PP
+EXAMPLES.PP
 To display the audit log file statistics and output the results in CSV format, run the following command:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-file\-stats \-\-format=CSV /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-file\-stats \-\-format=CSV /SERVER/data/audit\&.log\fR
   #
   # Audit Log File Statistics:
   #
@@ -749,7 +774,7 @@ To display the audit log entries of specific users, use the following command:
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-users=tester1,tester2 /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-users=tester1,tester2 /SERVER/data/audit\&.log\fR
 .fi
 .if n \{\
 .RE
@@ -761,7 +786,7 @@ To display the audit log file statistics, run the following command:
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-users=tester1,tester2 /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-users=tester1,tester2 /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | SERVER_ID  | NAME     | TIMESTAMP            | CONNECTION_ID  | HOST       | USER     | PRIV_USER  | IP         | SQLTEXT                          |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -795,7 +820,7 @@ To display the audit log entries for a specific date/time range, use the followi
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-start\-date=2012\-09\-27T13:33:47 \-\-end\-date=2012\-09\-28 /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-start\-date=2012\-09\-27T13:33:47 \-\-end\-date=2012\-09\-28 /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | TIMESTAMP            | NAME   | CONNECTION_ID  | SQLTEXT                                                                   |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -818,7 +843,7 @@ pattern, use the following command:
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-pattern="% = ___"; /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-pattern="% = ___"; /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | TIMESTAMP            | NAME   | SQLTEXT                         | CONNECTION_ID  |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -840,7 +865,7 @@ pattern, use the following command:
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-pattern="\&.* = \&.\&.\&." \-\-regexp /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-pattern="\&.* = \&.\&.\&." \-\-regexp /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | TIMESTAMP            | NAME   | SQLTEXT                         | CONNECTION_ID  |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -860,7 +885,7 @@ To display the audit log entries of specific query types, use the following comm
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-query\-type=show,SET /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-query\-type=show,SET /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | TIMESTAMP            | NAME   | SQLTEXT                                         | CONNECTION_ID  |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -898,7 +923,7 @@ To display the audit log entries of specific event types, use the following comm
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-event\-type="Ping,Connect" /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-event\-type="Ping,Connect" /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | NAME     | TIMESTAMP            | CONNECTION_ID  | HOST       | USER    | PRIV_USER  | IP         |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -934,7 +959,7 @@ To display the audit log entries with a specific status, use the following comma
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-status=1100\-1199,1046 /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-status=1100\-1199,1046 /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | TIMESTAMP            | NAME   | SQLTEXT                                                             | CONNECTION_ID  |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -947,11 +972,25 @@ shell> mysqlauditgrep \-\-status=1100\-1199,1046 /SERVER/data/audit\&.log
 .if n \{\
 .RE
 .\}
+.sp
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
 .PP
-Note: You can view all successful commands with
-\fB\-\-status=0\fR
-and all unsuccessful ones with
+You can view all successful commands with
+\fB\-\-status=0\fR, and all unsuccessful commands with
 \fB\-\-status=1\-9999\fR\&.
+.sp .5v
+.RE
 .PP
 To display the audit log entries matching several search criteria, use the following command:
 .sp
@@ -959,8 +998,8 @@ To display the audit log entries matching several search criteria, use the follo
 .RS 4
 .\}
 .nf
-shell> mysqlauditgrep \-\-users=root \-\-start\-date=0 \-\-end\-date=2012\-10\-10 \-\-event\-type=Query \e
-     \-\-query\-type=SET \-\-status=0 \-\-pattern="%audit_log%" /SERVER/data/audit\&.log
+shell> \fBmysqlauditgrep \-\-users=root \-\-start\-date=0 \-\-end\-date=2012\-10\-10 \-\-event\-type=Query \e
+       \-\-query\-type=SET \-\-status=0 \-\-pattern="%audit_log%" /SERVER/data/audit\&.log\fR
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
   | STATUS  | SERVER_ID  | NAME   | TIMESTAMP            | CONNECTION_ID  | USER  | PRIV_USER  | SQLTEXT                            |
   +\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
@@ -970,13 +1009,25 @@ shell> mysqlauditgrep \-\-users=root \-\-start\-date=0 \-\-end\-date=2012\-10\-1
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The user must have permissions to read the audit log on disk\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "NOTES"
 .IP " 1." 4
 Pattern Matching
 .RS 4
-\%http://dev.mysql.com/doc/refman/5.6/en/pattern-matching.html
+\%http://dev.mysql.com/doc/refman/5.7/en/pattern-matching.html
 .RE
 .IP " 2." 4
 Python "re" module docs
@@ -988,9 +1039,14 @@ audit log plugin enabled
 .RS 4
 \%http://dev.mysql.com/doc/refman/5.6/en/audit-log-plugin-installation.html
 .RE
+.IP " 4." 4
+The Audit Log File
+.RS 4
+\%http://dev.mysql.com/doc/refman/5.6/en/audit-log-file.html
+.RE
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).

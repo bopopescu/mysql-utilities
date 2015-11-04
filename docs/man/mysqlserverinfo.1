@@ -2,12 +2,12 @@
 .\"     Title: \fBmysqlserverinfo\fR
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/03/2013
+.\"      Date: 08/03/2015
 .\"    Manual: MySQL Utilities
-.\"    Source: MySQL 1.4.0
+.\"    Source: MySQL 1.6.2
 .\"  Language: English
 .\"
-.TH "\FBMYSQLSERVERINFO\F" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.TH "\FBMYSQLSERVERINFO\F" "1" "08/03/2015" "MySQL 1\&.6\&.2" "MySQL Utilities"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -150,7 +150,7 @@ option:
 .sp
 Display output in grid or table format like that of the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .sp
 .RS 4
@@ -193,12 +193,12 @@ Display output in single\-column format like that of the
 \eG
 command for the
 \fBmysql\fR
-monitor\&.
+client command\-line tool\&.
 .RE
 .PP
 To turn off the headers for
-\fBcsv\fR
-or
+\fBgrid\fR,
+\fBcsv\fR, or
 \fBtab\fR
 display format, specify the
 \fB\-\-no\-headers\fR
@@ -217,8 +217,7 @@ option multiple times\&. In this case, the utility attempts to connect to each s
 To see the MySQL servers running on the local machine, use the
 \fB\-\-show\-servers\fR
 option\&. This shows all the servers with their process ID and data directory\&. On Windows, the utility shows only the process ID and port\&.
-      OPTIONS
-.PP
+OPTIONS.PP
 \fBmysqlserverinfo\fR
 accepts the following command\-line options:
 .sp
@@ -233,6 +232,19 @@ accepts the following command\-line options:
 \-\-help
 .sp
 Display a help message and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-license
+.sp
+Display license information and exit\&.
 .RE
 .sp
 .RS 4
@@ -292,8 +304,8 @@ Specify the output display format\&. Permitted format values are
 \-\-no\-headers, \-h
 .sp
 Do not display column headers\&. This option applies only for
-\fBcsv\fR
-and
+\fBgrid\fR,
+\fBcsv\fR, and
 \fBtab\fR
 output\&.
 .RE
@@ -323,7 +335,45 @@ is given\&. The default range is 3306:3333\&.
 .\}
 \-\-server=<server>
 .sp
-Connection information for a server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&. Use this option multiple times to see information for multiple servers\&.
+Connection information for a server\&. Use this option multiple times to see information for multiple servers\&.
+.sp
+To connect to a server, it is necessary to specify connection parameters such as user name, host name, password, and either a port or socket\&. MySQL Utilities provides a number of ways to provide this information\&. All of the methods require specifying your choice via a command\-line option such as \-\-server, \-\-master, \-\-slave, etc\&. The methods include the following in order of most secure to least secure\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use login\-paths from your
+\&.mylogin\&.cnf
+file (encrypted, not visible)\&. Example : <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Use a configuration file (unencrypted, not visible) Note: available in release\-1\&.5\&.0\&. Example : <\fIconfiguration\-file\-path\fR>[:<\fIsection\fR>]
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Specify the data on the command\-line (unencrypted, visible)\&. Example : <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]
+.RE
+.sp
 .RE
 .sp
 .RS 4
@@ -354,6 +404,58 @@ to obtain the options\&.
 \-\-show\-servers
 .sp
 Display information about servers running on the local host\&. The utility examines the host process list to determine which servers are running\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-ca
+.sp
+The path to a file that contains a list of trusted SSL CAs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL certificate file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl\-cert
+.sp
+The name of the SSL key file to use for establishing a secure connection\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-ssl
+.sp
+Specifies if the server connection requires use of SSL\&. If an encrypted connection cannot be established, the connection attempt fails\&. Default setting is 0 (SSL not required)\&.
 .RE
 .sp
 .RS 4
@@ -431,8 +533,7 @@ option, the permitted values are not case sensitive\&. In addition, values may b
 specifies the grid format\&. An error occurs if a prefix matches more than one valid value\&.
 .PP
 The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
-      EXAMPLES
-.PP
+EXAMPLES.PP
 To display the server information for the local server and the settings for
 \fBmysqld\fR
 in the configuration file with the output in a vertical list, use this command:
@@ -441,7 +542,7 @@ in the configuration file with the output in a vertical list, use this command:
 .RS 4
 .\}
 .nf
-$ mysqlserverinfo \-\-server=root:pass@localhost \-d \-\-format=vertical
+shell> \fBmysqlserverinfo \-\-server=root:pass@localhost \-d \-\-format=vertical\fR
 # Source on localhost: \&.\&.\&. connected\&.
 *************************       1\&. row *************************
          server: localhost:3306
@@ -469,11 +570,25 @@ Defaults for server localhost:3306
 .if n \{\
 .RE
 .\}
+.sp
+PERMISSIONS REQUIRED.PP
+The permissions required include the ability to read the mysql database and to have read access to the data directory\&.
+.PP
+The user must have permissions to read the data directory or use an administrator or super user (sudo) account to obtain access to the data directory\&.
 .SH "COPYRIGHT"
 .br
+.PP
+Copyright \(co 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+.PP
+This documentation is free software; you can redistribute it and/or modify it only under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
+.PP
+This documentation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License along with the program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or see http://www.gnu.org/licenses/.
+.sp
 .SH "SEE ALSO"
-For more information, please refer to the MySQL Utilities section
-of the MySQL Workbench Reference Manual, which is available online
-at http://dev.mysql.com/doc/workbench/en/.
+For more information, please refer to the MySQL Utilities and Fabric
+documentation, which is available online at
+http://dev.mysql.com/doc/index-utils-fabric.html
 .SH AUTHOR
 Oracle Corporation (http://dev.mysql.com/).
