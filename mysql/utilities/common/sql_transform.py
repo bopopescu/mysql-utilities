@@ -76,6 +76,19 @@ _CONSTRAINT_QUERY = """
 """
 
 
+from struct import unpack
+
+def bit64_to_int(u):
+    """Convert a byte sequence representinga a BIT(64) field to a portable integer.
+
+    u[in]             byte sequence to convert
+
+    Returns (int) converted value
+    """
+    ret = unpack('Q', u[:8] + '\x00'*(8-len(u))   )[0]
+    return ret
+
+
 def to_sql(obj):
     """Convert a value to a suitable SQL value placing quotes where needed.
 
