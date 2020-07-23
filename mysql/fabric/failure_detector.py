@@ -17,18 +17,18 @@
 """This modules contains a simple failure detector which is used by Fabric
 to monitor the availability of servers within groups.
 
-If a master cannot be accessed through the
+If a main cannot be accessed through the
 :meth:`~mysql.fabric.server.MySQLServer.is_alive` method after `n` consecutive
 attempts, the failure detector considers that it has failed and proceeds with
-the election of a new master. The failure detector does not choose any new
-master but only triggers the :const:`~mysql.fabric.events.REPORT_FAILURE` event
+the election of a new main. The failure detector does not choose any new
+main but only triggers the :const:`~mysql.fabric.events.REPORT_FAILURE` event
 which responsible for doing so.
 
-If a slave cannot be accessed either the same event is triggered but in this
+If a subordinate cannot be accessed either the same event is triggered but in this
 case the server is only marked as faulty.
 
 See :meth:`~mysql.fabric.server.MySQLServer.is_alive`.
-See :class:`~mysql.fabric.services.highavailability.PromoteMaster`.
+See :class:`~mysql.fabric.services.highavailability.PromoteMain`.
 See :class:`~mysql.fabric.services.servers.ReportFailure`.
 """
 import threading
@@ -225,7 +225,7 @@ class FailureDetector(object):
         eventually freeing the thread.
 
         Not though that the report failure is not crash-safe so it might
-        fail without promoting a new server to master. In the future, we
+        fail without promoting a new server to main. In the future, we
         will circumvent this limitation.
         """
         try:

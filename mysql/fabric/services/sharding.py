@@ -73,7 +73,7 @@ SHARD_NOT_FOUND = "Shard %s not found"
 SHARD_LOCATION_NOT_FOUND = "Shard location not found"
 INVALID_SHARDING_HINT = "Unknown lookup hint"
 SHARD_GROUP_NOT_FOUND = "Shard group %s not found"
-SHARD_GROUP_MASTER_NOT_FOUND = "Shard group master not found"
+SHARD_GROUP_MASTER_NOT_FOUND = "Shard group main not found"
 SHARD_MOVE_DESTINATION_NOT_EMPTY = "Shard move destination %s already "\
     "hosts a shard"
 INVALID_SHARD_SPLIT_VALUE = "The chosen split value must be between the " \
@@ -796,8 +796,8 @@ def _remove_shard(shard_id, update_only=False):
     if shard.state == "ENABLED":
         raise _errors.ShardingError(SHARD_NOT_DISABLED)
     #Stop the replication of the shard group with the global
-    #group. Also clear the references of the master and the
-    #slave group from the current group.
+    #group. Also clear the references of the main and the
+    #subordinate group from the current group.
     #NOTE: When we do the stopping of the shard group
     #replication in shard remove we are actually just clearing
     #the references, since a shard cannot  be removed unless
@@ -978,13 +978,13 @@ def verify_and_fetch_shard(shard_id):
         return range_sharding_spec, shard, shard_mappings, shard_mapping_defn
 
 def _setup_shard_group_replication(shard_id):
-    """Setup the replication between the master group and the
+    """Setup the replication between the main group and the
     shard group. This is a utility method that given a shard id
     will lookup the group associated with this shard, and setup
     replication between the group and the global group.
 
     :param shard_id: The ID of the shard, whose group needs to
-                     be setup as a slave.
+                     be setup as a subordinate.
     """
     #Fetch the Range sharding specification. When we start implementing
     #heterogenous sharding schemes, we need to find out the type of
@@ -998,12 +998,12 @@ def _setup_shard_group_replication(shard_id):
             (shard_mapping_defn[2],  shard.group_id)
 
 def _stop_shard_group_replication(shard_id,  clear_ref):
-    """Stop the replication between the master group and the shard group.
+    """Stop the replication between the main group and the shard group.
 
     :param shard_id: The ID of the shard, whose group needs to
-                     be atopped as a slave.
+                     be atopped as a subordinate.
     :param clear_ref: Indicates whether removing the shard should result
-                      in the shard group losing all its slave group references.
+                      in the shard group losing all its subordinate group references.
     """
     #Fetch the Range sharding specification. When we start implementing
     #heterogenous sharding schemes, we need to find out the type of
@@ -1015,5 +1015,5 @@ def _stop_shard_group_replication(shard_id,  clear_ref):
     #Stop the replication between the shard group and the global group. Also
     #based on the clear_ref flag decide if you want to clear the references
     #associated with the group.
-    _group_replication.stop_group_slave(shard_mapping_defn[2],  shard.group_id,
+    _group_replication.stop_group_subordinate(shard_mapping_defn[2],  shard.group_id,
                                                                 clear_ref)

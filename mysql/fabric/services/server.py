@@ -138,7 +138,7 @@ class GroupLookups(Command):
         groups = [ _retrieve_group(gid) for gid in gids ]
 
         rset = ResultSet(
-            names=('group_id', 'description', 'failure_detector', 'master_uuid'),
+            names=('group_id', 'description', 'failure_detector', 'main_uuid'),
             types=(str, str, bool, str)
         )
 
@@ -147,7 +147,7 @@ class GroupLookups(Command):
                 group.group_id,          # group_id
                 group.description,       # description
                 group.status,            # failure_detector
-                group.master,            # master_uuid
+                group.main,            # main_uuid
             ])
 
         return CommandResult(None, results=rset)
@@ -297,7 +297,7 @@ class ServerAdd(ProcedureGroup):
     true.
 
     Note that the current implementation has a simple provisioning step that
-    makes the server point to the master if there is any.
+    makes the server point to the main if there is any.
     """
     group_name = "group"
     command_name = "add"
@@ -420,7 +420,7 @@ class SetServerStatus(ProcedureGroup):
     and the server is not reachable, it is automatically set to FAULTY.
 
     Users can also manually change the server's status. Usually, a user may
-    change a slave's mode to SPARE to avoid write and read access and
+    change a subordinate's mode to SPARE to avoid write and read access and
     guarantee that it is not choosen when a failover or swithover routine is
     executed.
 
@@ -676,7 +676,7 @@ def _configure_new_server(group_id, server_uuid, update_only):
     try:
         _check_requirements(server)
         if not update_only:
-            _configure_as_slave(group, server)
+            _configure_as_subordinate(group, server)
     except (_errors.ServerError, _errors.DatabaseError):
         server.disconnect()
         raise
@@ -690,9 +690,9 @@ def _remove_server(group_id, server_id):
     group = _retrieve_group(group_id)
     server = _retrieve_server(server_id, group_id)
 
-    if group.master == server.uuid:
+    if group.main == server.uuid:
         raise _errors.ServerError(
-            "Cannot remove server (%s), which is master in group (%s). "
+            "Cannot remove server (%s), which is main in group (%s). "
             "Please, demote it first." % (server.uuid, group_id)
         )
 
@@ -804,7 +804,7 @@ def _configure_faulty_server(server_uuid, previous_status, update_only):
         _check_requirements(server)
         if not update_only:
             group = _server.Group.fetch(server.group_id)
-            _configure_as_slave(group, server)
+            _configure_as_subordinate(group, server)
     except (_errors.ServerError, _errors.DatabaseError):
         server.disconnect()
         raise
@@ -1103,16 +1103,16 @@ def _check_requirements(server):
             % (server.uuid, )
         )
 
-def _configure_as_slave(group, server):
-    """Configure the server as a slave.
+def _configure_as_subordinate(group, server):
+    """Configure the server as a subordinate.
     """
     try:
-        if group.master:
-            master = _server.MySQLServer.fetch(group.master)
-            master.connect()
-            _utils.switch_master(server, master)
+        if group.main:
+            main = _server.MySQLServer.fetch(group.main)
+            main.connect()
+            _utils.switch_main(server, main)
     except _errors.DatabaseError as error:
-        msg = "Error trying to configure server ({0}) as slave: {1}.".format(
+        msg = "Error trying to configure server ({0}) as subordinate: {1}.".format(
             server.uuid, error)
         _LOGGER.debug(msg)
         raise _errors.ServerError(msg)

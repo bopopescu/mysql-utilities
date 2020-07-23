@@ -75,17 +75,17 @@ class ShardMetaData(_persistence.Persistable):
     )
 
     @staticmethod
-    def _fetch_master_of_group(group_id):
-        """Return a reference to the master of the group.
+    def _fetch_main_of_group(group_id):
+        """Return a reference to the main of the group.
 
-        :param group_id: ID of the group whose master needs to be fetched.
+        :param group_id: ID of the group whose main needs to be fetched.
 
-        :return: MySQLServer object referring to the group master.
+        :return: MySQLServer object referring to the group main.
         """
         global_group = Group.fetch(group_id)
-        master_server = MySQLServer.fetch(global_group.master)
-        master_server.connect()
-        return master_server
+        main_server = MySQLServer.fetch(global_group.main)
+        main_server.connect()
+        return main_server
 
     @staticmethod
     def create_shard_meta_data(group_id):
@@ -95,11 +95,11 @@ class ShardMetaData(_persistence.Persistable):
         :param group_id: Group ID of the global group for
                                 the shard definition.
         """
-        master_server = ShardMetaData._fetch_master_of_group(group_id)
-        #Create the schemas on the master and it will be replicated
+        main_server = ShardMetaData._fetch_main_of_group(group_id)
+        #Create the schemas on the main and it will be replicated
         #to all the other servers on the shard.
-        master_server.exec_stmt(ShardMetaData.CREATE_SHARDING_SCHEMA_DATABASE)
-        master_server.exec_stmt(ShardMetaData.CREATE_SHARDING_SCHEMA_TABLE)
+        main_server.exec_stmt(ShardMetaData.CREATE_SHARDING_SCHEMA_DATABASE)
+        main_server.exec_stmt(ShardMetaData.CREATE_SHARDING_SCHEMA_TABLE)
 
     @staticmethod
     def drop_shard_meta_data(group_id):
@@ -109,12 +109,12 @@ class ShardMetaData(_persistence.Persistable):
         :param group_id: Group ID of the global group for
                                 the shard definition.
         """
-        #Fetch the master of the group.
-        master_server = ShardMetaData._fetch_master_of_group(group_id)
-        #Drop the schemas on the master and the drop will be replicated
+        #Fetch the main of the group.
+        main_server = ShardMetaData._fetch_main_of_group(group_id)
+        #Drop the schemas on the main and the drop will be replicated
         #to all the other servers in the shard.
-        master_server.exec_stmt(ShardMetaData.DROP_SHARDING_SCHEMA_TABLE)
-        master_server.exec_stmt(ShardMetaData.DROP_SHARDING_SCHEMA_DATABASE)
+        main_server.exec_stmt(ShardMetaData.DROP_SHARDING_SCHEMA_TABLE)
+        main_server.exec_stmt(ShardMetaData.DROP_SHARDING_SCHEMA_DATABASE)
 
     @staticmethod
     def insert_shard_meta_data(shard_id, lower_bound, upper_bound, group_id):
@@ -129,11 +129,11 @@ class ShardMetaData(_persistence.Persistable):
         :param group_id: Group ID of the global group for
                                 the shard definition.
         """
-        #Fetch the master of the group.
-        master_server = ShardMetaData._fetch_master_of_group(group_id)
-        #Perform the insert on the master and it will get replicated to
+        #Fetch the main of the group.
+        main_server = ShardMetaData._fetch_main_of_group(group_id)
+        #Perform the insert on the main and it will get replicated to
         #all the servers of the shard.
-        master_server.exec_stmt(
+        main_server.exec_stmt(
             ShardMetaData.INSERT_SHARDING_METADATA,
             {"params": (shard_id, lower_bound, upper_bound, )}
         )
@@ -146,10 +146,10 @@ class ShardMetaData(_persistence.Persistable):
         :param shard_id: The shard ID of the shard whose metadata needs to be
                         deleted.
         """
-        master_server = ShardMetaData._fetch_master_of_group(group_id)
-        #Perform the delete on the master so that it gets
+        main_server = ShardMetaData._fetch_main_of_group(group_id)
+        #Perform the delete on the main so that it gets
         #replicated to all the servers.
-        row = master_server.exec_stmt(
+        row = main_server.exec_stmt(
             ShardMetaData.DELETE_SHARDING_METADATA,
             {
                 "raw" : False,
@@ -168,9 +168,9 @@ class ShardMetaData(_persistence.Persistable):
         :return: Dictionary of the lower_bound and upper_bound for a
                  particular shard.
         """
-        master_server = ShardMetaData._fetch_master_of_group(group_id)
-        #Fetch the metadata from the master.
-        rows = master_server.exec_stmt(ShardMetaData.FETCH_SHARDING_METADATA,
+        main_server = ShardMetaData._fetch_main_of_group(group_id)
+        #Fetch the metadata from the main.
+        rows = main_server.exec_stmt(ShardMetaData.FETCH_SHARDING_METADATA,
                                 {"raw" : False,
                                   "fetch" : True,
                                   "params":(shard_id, )

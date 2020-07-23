@@ -26,18 +26,18 @@ from mysql.fabric import (
 )
 
 CONFIG_NOT_FOUND = "Configuration option not found %s . %s"
-GROUP_MASTER_NOT_FOUND = "Group master not found"
+GROUP_MASTER_NOT_FOUND = "Group main not found"
 
-def switch_master(slave, master):
-    """Make slave point to master.
+def switch_main(subordinate, main):
+    """Make subordinate point to main.
 
-    :param slave: Slave.
-    :param master: Master.
+    :param subordinate: Subordinate.
+    :param main: Main.
     """
-    _replication.stop_slave(slave, wait=True)
-    _replication.switch_master(slave, master, master.user, master.passwd)
-    slave.read_only = True
-    _replication.start_slave(slave, wait=True)
+    _replication.stop_subordinate(subordinate, wait=True)
+    _replication.switch_main(subordinate, main, main.user, main.passwd)
+    subordinate.read_only = True
+    _replication.start_subordinate(subordinate, wait=True)
 
 
 def set_read_only(server, read_only):
@@ -48,43 +48,43 @@ def set_read_only(server, read_only):
     server.read_only = read_only
 
 
-def reset_slave(slave):
-    """Stop slave and reset it.
+def reset_subordinate(subordinate):
+    """Stop subordinate and reset it.
 
-    :param slave: slave.
+    :param subordinate: subordinate.
     """
-    _replication.stop_slave(slave, wait=True)
-    _replication.reset_slave(slave, clean=True)
+    _replication.stop_subordinate(subordinate, wait=True)
+    _replication.reset_subordinate(subordinate, clean=True)
 
 
-def process_slave_backlog(slave):
-    """Wait until slave processes its backlog.
+def process_subordinate_backlog(subordinate):
+    """Wait until subordinate processes its backlog.
 
-    :param slave: slave.
+    :param subordinate: subordinate.
     """
-    _replication.stop_slave(slave, wait=True)
-    _replication.start_slave(slave, threads=("SQL_THREAD", ), wait=True)
-    slave_status = _replication.get_slave_status(slave)[0]
-    _replication.wait_for_slave(
-        slave, slave_status.Master_Log_File, slave_status.Read_Master_Log_Pos
+    _replication.stop_subordinate(subordinate, wait=True)
+    _replication.start_subordinate(subordinate, threads=("SQL_THREAD", ), wait=True)
+    subordinate_status = _replication.get_subordinate_status(subordinate)[0]
+    _replication.wait_for_subordinate(
+        subordinate, subordinate_status.Main_Log_File, subordinate_status.Read_Main_Log_Pos
      )
 
 
-def synchronize(slave, master):
-    """Synchronize a slave with a master and after that stop the slave.
+def synchronize(subordinate, main):
+    """Synchronize a subordinate with a main and after that stop the subordinate.
 
-    :param slave: Slave.
-    :param master: Master.
+    :param subordinate: Subordinate.
+    :param main: Main.
     """
-    _replication.sync_slave_with_master(slave, master, timeout=0)
+    _replication.sync_subordinate_with_main(subordinate, main, timeout=0)
 
 
-def stop_slave(slave):
-    """Stop slave.
+def stop_subordinate(subordinate):
+    """Stop subordinate.
 
-    :param slave: Slave.
+    :param subordinate: Subordinate.
     """
-    _replication.stop_slave(slave, wait=True)
+    _replication.stop_subordinate(subordinate, wait=True)
 
 def read_config_value(config, config_group, config_name):
     """Read the value of the configuration option from the config files.
@@ -120,31 +120,31 @@ def is_valid_binary(binary):
     return os.path.isfile(binary) and os.access(binary, os.X_OK)
 
 def fetch_backup_server(source_group):
-    """Fetch a spare, slave or master from a group in that order of
+    """Fetch a spare, subordinate or main from a group in that order of
     availability. Find any spare (no criteria), if there is no spare, find
-    a secondary(no criteria) and if there is no secondary the master.
+    a secondary(no criteria) and if there is no secondary the main.
 
     :param source_group: The group from which the server needs to
                          be fetched.
     """
-    #Get a slave server whose status is spare.
+    #Get a subordinate server whose status is spare.
     backup_server = None
     for server in source_group.servers():
         if server.status == "SPARE":
             backup_server = server
 
-    #If there is no spare check if a running slave is available
+    #If there is no spare check if a running subordinate is available
     if backup_server is None:
         for server in source_group.servers():
-            if source_group.master != server.uuid and \
+            if source_group.main != server.uuid and \
                 server.status == "SECONDARY":
                 backup_server = server
 
-    #If there is no running slave just use the master
+    #If there is no running subordinate just use the main
     if backup_server is None:
-        backup_server = _server.MySQLServer.fetch(source_group.master)
+        backup_server = _server.MySQLServer.fetch(source_group.main)
 
-    #If there is no master throw an exception
+    #If there is no main throw an exception
     if backup_server is None:
         raise _errors.ShardingError(GROUP_MASTER_NOT_FOUND)
 

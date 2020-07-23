@@ -109,7 +109,7 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
     """Write information to the logging table if the appropriate options are
     set by the user. For example::
 
-        logger.debug("Group %s has promote server %s to master.",
+        logger.debug("Group %s has promote server %s to main.",
             group_id, server.uuid,
             extra={
                 'subject' : group_id,
@@ -126,7 +126,7 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
     whereas the subject classifies the entity and the type defines what has
     been reported. In the aforementioned code, the subject is the group
     identifier, the category defines that information on a group is being
-    reported and the type says that a new master is being promoted.
+    reported and the type says that a new main is being promoted.
 
     The following categories are supported:
 
@@ -220,9 +220,9 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
             |   group_id     | Group identification |
             +----------------+----------------------+
             |  promote_count | Many times a new     |
-            |                | master was promoted  |
+            |                | main was promoted  |
             +----------------+----------------------+
-            |  demote_count  | Many times a master  |
+            |  demote_count  | Many times a main  |
             |                | was demoted          |
             +----------------+----------------------+
 

@@ -361,7 +361,7 @@ def _backup_source_shard(shard_id, source_group_id, destn_group_id,
                         mysqldump_binary
                     )
 
-    #Change the master for the server that is master of the group which hosts
+    #Change the main for the server that is main of the group which hosts
     #the destination shard.
     _events.trigger_within_procedure(
                                      RESTORE_SHARD_BACKUP,
@@ -452,27 +452,27 @@ def _setup_replication(shard_id, source_group_id, destn_group_id, split_value,
         raise _errors.ShardingError(_services_sharding.SHARD_GROUP_NOT_FOUND %
                                     (destn_group_id, ))
 
-    master = MySQLServer.fetch(source_group.master)
-    if master is None:
+    main = MySQLServer.fetch(source_group.main)
+    if main is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    master.connect()
+    main.connect()
 
-    slave = MySQLServer.fetch(destination_group.master)
-    if slave is None:
+    subordinate = MySQLServer.fetch(destination_group.main)
+    if subordinate is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    slave.connect()
+    subordinate.connect()
 
-    #Stop and reset any slave that  might be running on the slave server.
-    _replication.stop_slave(slave, wait=True)
-    _replication.reset_slave(slave, clean=True)
+    #Stop and reset any subordinate that  might be running on the subordinate server.
+    _replication.stop_subordinate(subordinate, wait=True)
+    _replication.reset_subordinate(subordinate, clean=True)
 
-    #Change the master to the shard group master.
-    _replication.switch_master(slave, master, master.user, master.passwd)
+    #Change the main to the shard group main.
+    _replication.switch_main(subordinate, main, main.user, main.passwd)
 
-    #Start the slave so that syncing of the data begins
-    _replication.start_slave(slave, wait=True)
+    #Start the subordinate so that syncing of the data begins
+    _replication.start_subordinate(subordinate, wait=True)
 
     #Setup sync between the source and the destination groups.
     _events.trigger_within_procedure(
@@ -512,24 +512,24 @@ def _setup_sync(shard_id, source_group_id, destn_group_id, split_value,
         raise _errors.ShardingError(_services_sharding.SHARD_GROUP_NOT_FOUND %
                                     (destn_group_id, ))
 
-    master = MySQLServer.fetch(source_group.master)
-    if master is None:
+    main = MySQLServer.fetch(source_group.main)
+    if main is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    master.connect()
+    main.connect()
 
-    slave = MySQLServer.fetch(destination_group.master)
-    if slave is None:
+    subordinate = MySQLServer.fetch(destination_group.main)
+    if subordinate is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    slave.connect()
+    subordinate.connect()
 
-    #Synchronize until the slave catches up with the master.
-    _replication.synchronize_with_read_only(slave, master)
+    #Synchronize until the subordinate catches up with the main.
+    _replication.synchronize_with_read_only(subordinate, main)
 
     #Reset replication once the syncing is done.
-    _replication.stop_slave(slave, wait=True)
-    _replication.reset_slave(slave, clean=True)
+    _replication.stop_subordinate(subordinate, wait=True)
+    _replication.reset_subordinate(subordinate, clean=True)
 
     #Trigger changing the mappings for the shard that was copied
     _events.trigger_within_procedure(
@@ -608,15 +608,15 @@ def _setup_shard_switch_split(shard_id, source_group_id, destination_group_id,
     if destination_group is None:
         raise _errors.ShardingError(_services_sharding.SHARD_GROUP_NOT_FOUND %
                                     (destination_group_id, ))
-    destn_group_master = MySQLServer.fetch(destination_group.master)
-    if destn_group_master is None:
+    destn_group_main = MySQLServer.fetch(destination_group.main)
+    if destn_group_main is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    destn_group_master.connect()
+    destn_group_main.connect()
 
     #Make the destination group as read only to disable updates until the
     #connectors update their caches, thus avoiding inconsistency.
-    destn_group_master.read_only = True
+    destn_group_main.read_only = True
 
     #Add the new shards. Generate new shard IDs for the shard being
     #split and also for the shard that is created as a result of the split.
@@ -667,27 +667,27 @@ def _setup_shard_switch_split(shard_id, source_group_id, destination_group_id,
     #new shards that have been added as a result of the split.
     time.sleep(_utils.TTL)
 
-    #The source shard group master would have been marked as read only
+    #The source shard group main would have been marked as read only
     #during the sync. Remove the read_only flag.
     source_group = Group.fetch(source_group_id)
     if source_group is None:
         raise _errors.ShardingError(_services_sharding.SHARD_GROUP_NOT_FOUND %
                                     (source_group_id, ))
 
-    source_group_master = MySQLServer.fetch(source_group.master)
-    if source_group_master is None:
+    source_group_main = MySQLServer.fetch(source_group.main)
+    if source_group_main is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    source_group_master.connect()
+    source_group_main.connect()
 
     #Kill all the existing connections on the servers
     source_group.kill_connections_on_servers()
 
-    #Allow connections on the source group master
-    source_group_master.read_only = False
+    #Allow connections on the source group main
+    source_group_main.read_only = False
 
-    #Allow connections on the destination group master
-    destn_group_master.read_only = False
+    #Allow connections on the destination group main
+    destn_group_main.read_only = False
 
     #Setup replication for the new group from the global server
     _group_replication.setup_group_replication \
@@ -780,13 +780,13 @@ def _setup_shard_switch_move(shard_id, source_group_id, destination_group_id,
     if destination_group is None:
         raise _errors.ShardingError(_services_sharding.SHARD_GROUP_NOT_FOUND %
                                     (destination_group_id, ))
-    destn_group_master = MySQLServer.fetch(destination_group.master)
-    if destn_group_master is None:
+    destn_group_main = MySQLServer.fetch(destination_group.main)
+    if destn_group_main is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
-    destn_group_master.connect()
-    #Set the destination group master to read_only
-    destn_group_master.read_only = True
+    destn_group_main.connect()
+    #Set the destination group main to read_only
+    destn_group_main.read_only = True
 
     #Setup replication between the shard group and the global group.
     _group_replication.setup_group_replication \
@@ -795,7 +795,7 @@ def _setup_shard_switch_move(shard_id, source_group_id, destination_group_id,
     source_shard.group_id = destination_group_id
     #Stop the replication between the global server and the original
     #group associated with the shard.
-    _group_replication.stop_group_slave\
+    _group_replication.stop_group_subordinate\
             (shard_mapping_defn[2], source_group_id,  True)
 
     #The sleep ensures that the connector have refreshed their caches with the
@@ -808,15 +808,15 @@ def _setup_shard_switch_move(shard_id, source_group_id, destination_group_id,
         raise _errors.ShardingError(_services_sharding.SHARD_GROUP_NOT_FOUND %
                                     (source_group_id, ))
 
-    master = MySQLServer.fetch(source_group.master)
-    if master is None:
+    main = MySQLServer.fetch(source_group.main)
+    if main is None:
         raise _errors.ShardingError(
             _services_sharding.SHARD_GROUP_MASTER_NOT_FOUND)
 
     if not update_only:
-        master.connect()
-        master.read_only = False
+        main.connect()
+        main.read_only = False
         #Kill all the existing connections on the servers
         source_group.kill_connections_on_servers()
-        #allow updates in the destination group master
-        destn_group_master.read_only = False
+        #allow updates in the destination group main
+        destn_group_main.read_only = False

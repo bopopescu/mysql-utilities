@@ -145,12 +145,12 @@ def _set_status_faulty(server):
     MySQLConnectionManager().purge_connections(server)
 
 def _trigger_actions(server, update_only):
-    """Trigger a failover if the server is a master.
+    """Trigger a failover if the server is a main.
     """
     if not update_only:
         group = _server.Group.fetch(server.group_id)
-        if group.master == server.uuid:
-            _LOGGER.info("Master (%s) in group (%s) has "
+        if group.main == server.uuid:
+            _LOGGER.info("Main (%s) in group (%s) has "
                          "been lost.", server.uuid, group.group_id)
             _events.trigger_within_procedure("FAIL_OVER", group.group_id)
 

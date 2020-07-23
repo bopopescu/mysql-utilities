@@ -117,7 +117,7 @@ class ShardMetaDataCheck(_persistence.Persistable):
         inserted fall within the valid shard ranges.
 
         :param group_id: The ID of the group on which the trigger definition
-                         is applied. The trigger is created on the master of
+                         is applied. The trigger is created on the main of
                          this group.
         :param sharding_type: The datatype supported by the shards. Used to
                               name the trigger.
@@ -127,8 +127,8 @@ class ShardMetaDataCheck(_persistence.Persistable):
                             This is used to create the name of the trigger.
         """
         global_group = Group.fetch(group_id)
-        master_server = MySQLServer.fetch(global_group.master)
-        master_server.connect()
+        main_server = MySQLServer.fetch(global_group.main)
+        main_server.connect()
 
         #Create an INSERT trigger on the sharded table.
         db, table = table_name.split(".")
@@ -141,7 +141,7 @@ class ShardMetaDataCheck(_persistence.Persistable):
             table_name=table_name,
             column_name="NEW"+"."+column_name
         )
-        master_server.exec_stmt(create_insert_trigger)
+        main_server.exec_stmt(create_insert_trigger)
 
         #Create an UPDATE trigger on the sharded table.
         trigger_tmpl = _TRIGGER_DEFN[sharding_type]
@@ -152,7 +152,7 @@ class ShardMetaDataCheck(_persistence.Persistable):
                 table_name=table_name,
                 column_name="NEW"+"."+column_name
             )
-        master_server.exec_stmt(create_update_trigger)
+        main_server.exec_stmt(create_update_trigger)
 
     @staticmethod
     def drop_shard_range_trigger(group_id, sharding_type, table_name,
@@ -160,7 +160,7 @@ class ShardMetaDataCheck(_persistence.Persistable):
         """Drop a trigger on the shard table.
 
         :param group_id: The ID of the group on which the trigger definition
-                         is applied. The trigger is created on the master of
+                         is applied. The trigger is created on the main of
                          this group.
         :param sharding_type: The datatype supported by the shards. Used to
                               name the trigger.
@@ -170,8 +170,8 @@ class ShardMetaDataCheck(_persistence.Persistable):
                             This is used to create the name of the trigger.
         """
         global_group = Group.fetch(group_id)
-        master_server = MySQLServer.fetch(global_group.master)
-        master_server.connect()
+        main_server = MySQLServer.fetch(global_group.main)
+        main_server.connect()
 
         db, table = table_name.split(".")
 
@@ -180,11 +180,11 @@ class ShardMetaDataCheck(_persistence.Persistable):
         drop_insert_trigger = _DROP_TRIGGER_DEFN.format(
             trigger_name=trigger_name
         )
-        master_server.exec_stmt(drop_insert_trigger)
+        main_server.exec_stmt(drop_insert_trigger)
 
         #Drop the UPDATE trigger on the sharded table.
         trigger_name = db + "." + _TRIGGER_PREFIX_UPDATE + table
         drop_update_trigger = _DROP_TRIGGER_DEFN.format(
             trigger_name=trigger_name
         )
-        master_server.exec_stmt(drop_update_trigger)
+        main_server.exec_stmt(drop_update_trigger)

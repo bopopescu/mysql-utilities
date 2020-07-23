@@ -94,16 +94,16 @@ class Group(_persistence.Persistable):
 
     :param group_id: The id that uniquely identifies the group.
     :param description: The group's description.
-    :param master: The master's uuid in the group.
-    :rtype master: UUID
+    :param main: The main's uuid in the group.
+    :rtype main: UUID
     :param status: Group's status.
     :rtype status: ACTIVE or INACTIVE.
     """
     CREATE_GROUP = ("CREATE TABLE groups"
                     "(group_id VARCHAR(64) NOT NULL, "
                     "description VARCHAR(256), "
-                    "master_uuid VARCHAR(40), "
-                    "master_defined TIMESTAMP /*!50604 (6) */ NULL, "
+                    "main_uuid VARCHAR(40), "
+                    "main_defined TIMESTAMP /*!50604 (6) */ NULL, "
                     "status BIT(1) NOT NULL, "
                     "CONSTRAINT pk_group_id PRIMARY KEY (group_id)) "
                     "DEFAULT CHARSET=utf8"
@@ -112,15 +112,15 @@ class Group(_persistence.Persistable):
     #Create the table that stores the group replication relationship.
     CREATE_GROUP_REPLICATION = (
                             "CREATE TABLE group_replication"
-                            "(master_group_id VARCHAR(64) NOT NULL, "
-                            "slave_group_id VARCHAR(64) NOT NULL, "
-                            "CONSTRAINT pk_master_slave_group_id "
-                            "PRIMARY KEY(master_group_id, slave_group_id), "
-                            "CONSTRAINT FOREIGN KEY(master_group_id) "
+                            "(main_group_id VARCHAR(64) NOT NULL, "
+                            "subordinate_group_id VARCHAR(64) NOT NULL, "
+                            "CONSTRAINT pk_main_subordinate_group_id "
+                            "PRIMARY KEY(main_group_id, subordinate_group_id), "
+                            "CONSTRAINT FOREIGN KEY(main_group_id) "
                             "REFERENCES groups(group_id), "
-                            "CONSTRAINT FOREIGN KEY(slave_group_id) "
+                            "CONSTRAINT FOREIGN KEY(subordinate_group_id) "
                             "REFERENCES groups(group_id), "
-                            "INDEX idx_slave_group_id(slave_group_id)) "
+                            "INDEX idx_subordinate_group_id(subordinate_group_id)) "
                             "DEFAULT CHARSET=utf8"
     )
 
@@ -134,13 +134,13 @@ class Group(_persistence.Persistable):
     #SQL statement for selecting all groups
     QUERY_GROUPS_BY_STATUS = ("SELECT group_id FROM groups WHERE status = %s")
 
-    #Query the group that is the master of this group.
-    QUERY_GROUP_REPLICATION_MASTER = ("SELECT master_group_id FROM "
-                                "group_replication WHERE slave_group_id = %s")
+    #Query the group that is the main of this group.
+    QUERY_GROUP_REPLICATION_MASTER = ("SELECT main_group_id FROM "
+                                "group_replication WHERE subordinate_group_id = %s")
 
-    #Query the groups that are the slaves of this group.
-    QUERY_GROUP_REPLICATION_SLAVES = ("SELECT slave_group_id FROM "
-                                "group_replication WHERE master_group_id = %s")
+    #Query the groups that are the subordinates of this group.
+    QUERY_GROUP_REPLICATION_SLAVES = ("SELECT subordinate_group_id FROM "
+                                "group_replication WHERE main_group_id = %s")
 
     #SQL statement for updating the group table identified by the group id.
     UPDATE_GROUP = ("UPDATE groups SET description = %s WHERE group_id = %s")
@@ -148,27 +148,27 @@ class Group(_persistence.Persistable):
     #SQL statement used for deleting the group identified by the group id.
     REMOVE_GROUP = ("DELETE FROM groups WHERE group_id = %s")
 
-    #Remove the mapping between a master and a slave group.
+    #Remove the mapping between a main and a subordinate group.
     DELETE_MASTER_SLAVE_GROUP_MAPPING = ("DELETE FROM group_replication "
-                            "WHERE slave_group_id = %s")
+                            "WHERE subordinate_group_id = %s")
 
-    #Delete all the master to slave mappings for a given master group. A
-    #given master group can have multiple slaves.
+    #Delete all the main to subordinate mappings for a given main group. A
+    #given main group can have multiple subordinates.
     DELETE_SLAVE_GROUPS = ("DELETE FROM group_replication "
-                            "WHERE master_group_id = %s")
+                            "WHERE main_group_id = %s")
 
-    #Add a Master - Slave Group mapping.
+    #Add a Main - Subordinate Group mapping.
     INSERT_MASTER_SLAVE_GROUP_MAPPING = \
             ("INSERT INTO group_replication"
-             "(master_group_id, slave_group_id)"
+             "(main_group_id, subordinate_group_id)"
              " VALUES(%s, %s)")
 
     #SQL Statement to retrieve a specific group from the state_store.
-    QUERY_GROUP = ("SELECT group_id, description, master_uuid, "
-                   "master_defined, status FROM groups WHERE group_id = %s")
+    QUERY_GROUP = ("SELECT group_id, description, main_uuid, "
+                   "main_defined, status FROM groups WHERE group_id = %s")
 
-    #SQL Statement to update the group's master.
-    UPDATE_MASTER = ("UPDATE groups SET master_uuid = %s, master_defined = %s "
+    #SQL Statement to update the group's main.
+    UPDATE_MASTER = ("UPDATE groups SET main_uuid = %s, main_defined = %s "
                      "WHERE group_id = %s")
 
     #SQL Statement to update the group's status.
@@ -176,8 +176,8 @@ class Group(_persistence.Persistable):
 
     #Create the referential integrity constraint with the servers table
     ADD_FOREIGN_KEY_CONSTRAINT_MASTER_UUID = (
-        "ALTER TABLE groups ADD CONSTRAINT fk_master_uid_servers "
-        "FOREIGN KEY(master_uuid) REFERENCES servers(server_uuid)"
+        "ALTER TABLE groups ADD CONSTRAINT fk_main_uid_servers "
+        "FOREIGN KEY(main_uuid) REFERENCES servers(server_uuid)"
     )
 
     #Group's statuses
@@ -189,20 +189,20 @@ class Group(_persistence.Persistable):
     #Failover interval
     _FAILOVER_INTERVAL = _DEFAULT_FAILOVER_INTERVAL = 3600
 
-    def __init__(self, group_id, description=None, master=None,
-                 master_defined=None, status=INACTIVE):
+    def __init__(self, group_id, description=None, main=None,
+                 main_defined=None, status=INACTIVE):
         """Constructor for the Group.
         """
         assert(isinstance(group_id, basestring))
         assert(description is None or isinstance(description, basestring))
-        assert(master is None or isinstance(master, _uuid.UUID))
-        assert(master_defined is None or isinstance(master_defined, datetime))
+        assert(main is None or isinstance(main, _uuid.UUID))
+        assert(main_defined is None or isinstance(main_defined, datetime))
         assert(status in Group.GROUP_STATUS)
         super(Group, self).__init__()
         self.__group_id = group_id
         self.__description = description
-        self.__master = master
-        self.__master_defined = master_defined
+        self.__main = main
+        self.__main_defined = main_defined
         self.__status = status
 
     def __eq__(self,  other):
@@ -223,14 +223,14 @@ class Group(_persistence.Persistable):
         return self.__group_id
 
     @property
-    def slave_group_ids(self):
+    def subordinate_group_ids(self):
         """Property that gives access to the list of Groups that are
-        slaves to this group.
+        subordinates to this group.
         """
-        return self.fetch_slave_group_ids()
+        return self.fetch_subordinate_group_ids()
 
-    def fetch_slave_group_ids(self, persister=None):
-        """Return the list of Groups that are slaves to this group.
+    def fetch_subordinate_group_ids(self, persister=None):
+        """Return the list of Groups that are subordinates to this group.
 
         :param persister: The DB server that can be used to access the
                           state store.
@@ -247,14 +247,14 @@ class Group(_persistence.Persistable):
         return ret
 
     @property
-    def master_group_id(self):
-        """Property that returns the ID of the master group from which this
+    def main_group_id(self):
+        """Property that returns the ID of the main group from which this
         group replicates.
         """
-        return self.fetch_master_group_id()
+        return self.fetch_main_group_id()
 
-    def fetch_master_group_id(self, persister=None):
-        """Return the ID of the master group from which this group replicates.
+    def fetch_main_group_id(self, persister=None):
+        """Return the ID of the main group from which this group replicates.
 
         :param persister: The DB server that can be used to access the
                           state store.
@@ -266,33 +266,33 @@ class Group(_persistence.Persistable):
         return row[0][0]
 
 
-    def add_slave_group_id(self,  slave_group_id, persister=None):
-        """Insert a slave group ID into the slave group ID list. Register a
-        slave to this group.
+    def add_subordinate_group_id(self,  subordinate_group_id, persister=None):
+        """Insert a subordinate group ID into the subordinate group ID list. Register a
+        subordinate to this group.
 
-        :param slave_group_id: the group ID of the slave group that needs to
+        :param subordinate_group_id: the group ID of the subordinate group that needs to
                                               be added.
         :param persister: The DB server that can be used to access the
                           state store.
         """
         persister.exec_stmt(Group.INSERT_MASTER_SLAVE_GROUP_MAPPING,
-                            {"params": (self.__group_id, slave_group_id)})
+                            {"params": (self.__group_id, subordinate_group_id)})
 
-    def remove_slave_group_id(self,  slave_group_id, persister=None):
-        """Remove a slave group ID from the slave group ID list. Unregister a
-        slave group.
+    def remove_subordinate_group_id(self,  subordinate_group_id, persister=None):
+        """Remove a subordinate group ID from the subordinate group ID list. Unregister a
+        subordinate group.
 
-        :param slave_group_id: the group ID of the slave group that needs to
+        :param subordinate_group_id: the group ID of the subordinate group that needs to
                                               be removed.
         :param persister: The DB server that can be used to access the
                           state store.
         """
         persister.exec_stmt(Group.DELETE_MASTER_SLAVE_GROUP_MAPPING,
-                            {"params": (slave_group_id, )})
+                            {"params": (subordinate_group_id, )})
 
-    def remove_slave_group_ids(self, persister=None):
-        """Remove slave group ids for a particular group. Unregisters
-        all the slave of this group.
+    def remove_subordinate_group_ids(self, persister=None):
+        """Remove subordinate group ids for a particular group. Unregisters
+        all the subordinate of this group.
 
         :param persister: The DB server that can be used to access the
                           state store.
@@ -300,20 +300,20 @@ class Group(_persistence.Persistable):
         persister.exec_stmt(Group.DELETE_SLAVE_GROUPS,
                             {"params": (self.__group_id, )})
 
-    def add_master_group_id(self,  master_group_id, persister=None):
-        """Set the master group ID. Register a group as a master. This Group
-        basically is a slave to the registered group.
+    def add_main_group_id(self,  main_group_id, persister=None):
+        """Set the main group ID. Register a group as a main. This Group
+        basically is a subordinate to the registered group.
 
-        :param master_group_id: The group ID of the master that needs to be
+        :param main_group_id: The group ID of the main that needs to be
                                                  added.
         :param persister: The DB server that can be used to access the
                           state store.
         """
         persister.exec_stmt(Group.INSERT_MASTER_SLAVE_GROUP_MAPPING,
-                            {"params": (master_group_id, self.__group_id)})
+                            {"params": (main_group_id, self.__group_id)})
 
-    def remove_master_group_id(self, persister=None):
-        """Remove the master group ID. Unregister a master group.
+    def remove_main_group_id(self, persister=None):
+        """Remove the main group ID. Unregister a main group.
 
         :param persister: The DB server that can be used to access the
                           state store.
@@ -362,42 +362,42 @@ class Group(_persistence.Persistable):
         self.__description = description
 
     @property
-    def master(self):
-        """Return the master for the group.
+    def main(self):
+        """Return the main for the group.
         """
-        return self.__master
+        return self.__main
 
     @property
-    def master_defined(self):
-        """Return the last time the master has changed.
+    def main_defined(self):
+        """Return the last time the main has changed.
         """
-        return self.__master_defined
+        return self.__main_defined
 
-    @master.setter
-    def master(self, master, persister=None):
-        """Set the master for this group.
+    @main.setter
+    def main(self, main, persister=None):
+        """Set the main for this group.
 
         :param persister: The DB server that can be used to access the
                           state store.
-        :param master: The master for the group that needs to be updated.
+        :param main: The main for the group that needs to be updated.
         """
-        assert(master is None or isinstance(master, _uuid.UUID))
-        if master is None:
-            param_master = None
+        assert(main is None or isinstance(main, _uuid.UUID))
+        if main is None:
+            param_main = None
         else:
-            param_master = str(master)
+            param_main = str(main)
 
-        _LOGGER.info("Master has changed from %s to %s.", self.__master, master,
+        _LOGGER.info("Main has changed from %s to %s.", self.__main, main,
             extra={
                 "subject": self.__group_id,
                 "category": MySQLHandler.GROUP,
-                "type" : MySQLHandler.PROMOTE if master else \
+                "type" : MySQLHandler.PROMOTE if main else \
                          MySQLHandler.DEMOTE
             }
         )
         persister.exec_stmt(Group.UPDATE_MASTER,
-            {"params":(param_master, _utils.get_time(), self.__group_id)})
-        self.__master = master
+            {"params":(param_main, _utils.get_time(), self.__group_id)})
+        self.__main = main
 
 
     def servers(self):
@@ -450,19 +450,19 @@ class Group(_persistence.Persistable):
         self.__status = status
 
     def can_set_server_faulty(self, server, now):
-        """Check whether is ipossible to set a new master.
+        """Check whether is ipossible to set a new main.
 
-        If `now - master_defined` > Group._FAILOVER_INTERVAL, it is safe
-        to set a new master without making the system unstable.
+        If `now - main_defined` > Group._FAILOVER_INTERVAL, it is safe
+        to set a new main without making the system unstable.
         """
-        if self.__master_defined is None:
+        if self.__main_defined is None:
             return True
 
-        diff = now - self.__master_defined
+        diff = now - self.__main_defined
         interval = _utils.get_time_delta(Group._FAILOVER_INTERVAL)
 
-        if (self.__master == server.uuid and diff >= interval) or \
-            self.__master != server.uuid:
+        if (self.__main == server.uuid and diff >= interval) or \
+            self.__main != server.uuid:
             return True
 
         return False
@@ -514,12 +514,12 @@ class Group(_persistence.Persistable):
         )
         row = cur.fetchone()
         if row:
-            group_id, description, master, master_defined, status = row
-            if master:
-                master = _uuid.UUID(master)
+            group_id, description, main, main_defined, status = row
+            if main:
+                main = _uuid.UUID(main)
             group = Group(
-                group_id=group_id, description=description, master=master,
-                master_defined=master_defined, status=status
+                group_id=group_id, description=description, main=main,
+                main_defined=main_defined, status=status
                 )
         return group
 
